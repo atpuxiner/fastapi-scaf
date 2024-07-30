@@ -1,0 +1,2 @@
+include README.md
+recursive-include fastapi_scaf *
