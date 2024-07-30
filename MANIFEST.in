@@ -1,2 +1,3 @@
 include README.md
-recursive-include fastapi_scaf *
+include fastapi_scaf/_project_tpl.json
+include fastapi_scaf/_api_tpl.json
