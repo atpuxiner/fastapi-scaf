@@ -2,9 +2,10 @@
 @author axiner
 @version v1.0.0
 @created 2024/7/29 22:22
-@abstract
+@abstract app
 @description
 @history
 """
+from pathlib import Path
 
-__version__ = "1.1.0"
+APP_DIR = Path(__file__).absolute().parent

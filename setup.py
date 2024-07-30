@@ -13,7 +13,7 @@ from pathlib import Path
 from shutil import rmtree
 
 from pkg_resources import yield_lines
-from setuptools import Command, setup
+from setuptools import Command, setup, find_packages
 
 from versions import Versions
 
@@ -90,6 +90,7 @@ setup(
     version=__verison__,
     long_description=long_description,
     long_description_content_type='text/markdown',
+    packages=find_packages(include=['fastapi_scaf']),
     install_requires=install_requires,
     cmdclass={
         'bu': BuildCommand,

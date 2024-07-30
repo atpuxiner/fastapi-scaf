@@ -1,0 +1,11 @@
+debug: true
+log_dir: "../log"
+db_echo: true
+worker_id: 0
+datacenter_id: 0
+# #
+db_url:
+db_async_url:
+redis_host:
+redis_port:
+redis_db:
