@@ -19,9 +19,8 @@ class BaseConf:
 
 
 class Conf(BaseConf):
-    """conf"""
 
-    # TODO: 配置显性设置
+    # 配置显性设置
     db_url: str
     db_async_url: str
     redis_host: str
@@ -33,7 +32,7 @@ class Conf(BaseConf):
         self.load_env()
         yaml_conf = self.load_yaml()
 
-        # TODO: 配置显性设置
+        # 配置显性设置
         self.debug = yaml_conf.get("debug", False)
         self.log_dir = yaml_conf.get("log_dir", "")
         self.db_echo = yaml_conf.get("db_echo", False)

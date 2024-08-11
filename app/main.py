@@ -8,13 +8,16 @@
 """
 from fastapi import FastAPI
 
-from app import router, middleware
-from app import initializer
+from app import (
+    initializer,
+    router,
+    middleware,
+)
 
 app = FastAPI()
 
 initializer.setup()
-router.register_ping_router(app)
+router.register_default_router(app)
 router.register_routers_dynamically(app, api_version='v1')
 middleware.register_middlewares(app)
 

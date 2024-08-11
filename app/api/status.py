@@ -6,7 +6,7 @@ class Status(Enum):
     FAILURE = (1, '操作失败')
 
     PARAMS_ERROR = (400, '参数错误')
-    UNAUTHORIZED_ERROR = (401, '认证失败')
+    UNAUTHORIZED_ERROR = (401, '认证错误')
     # 业务模块错误从10000开始
     RECORD_EXISTS_ERROR = (10000, '记录已存在')
 

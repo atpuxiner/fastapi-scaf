@@ -20,7 +20,7 @@ from app.middleware.auth import JWTUser, get_current_user
 user_router = APIRouter()
 
 
-@user_router.get("/user/{user_id}")
+@user_router.get("/user/{user_id}", summary="user详情")
 async def get(
         user_id: int,
         current_user: JWTUser = Depends(get_current_user),
@@ -36,7 +36,7 @@ async def get(
     return Response.success(data)
 
 
-@user_router.get("/user")
+@user_router.get("/user", summary="user列表")
 async def get_list(
         page: int = 1,
         size: int = 10,
@@ -53,7 +53,7 @@ async def get_list(
     return Response.success({"data": data, "total": total})
 
 
-@user_router.post("/user")
+@user_router.post("/user", summary="user创建")
 async def create(
         user_biz: CreateUserBiz,
 ):
@@ -72,7 +72,7 @@ async def create(
     return Response.success(data)
 
 
-@user_router.put("/user/{user_id}")
+@user_router.put("/user/{user_id}", summary="user更新")
 async def update(
         user_id: int,
         user_biz: UpdateUserBiz,
@@ -88,7 +88,7 @@ async def update(
     return Response.success({"id": user_id, "status": status})
 
 
-@user_router.delete("/user/{user_id}")
+@user_router.delete("/user/{user_id}", summary="user删除")
 async def delete(
         user_id: int,
         current_user: JWTUser = Depends(get_current_user),
@@ -104,7 +104,7 @@ async def delete(
     return Response.success({"id": user_id, "status": status})
 
 
-@user_router.post("/user/login")
+@user_router.post("/user/login", summary="userLogin")
 async def login(
         user_biz: LoginUserBiz,
 ):
@@ -120,7 +120,7 @@ async def login(
     return Response.success({"token": data})
 
 
-@user_router.post("/user/token")
+@user_router.post("/user/token", summary="userToken")
 async def token(
         user_biz: TokenUserBiz,
         current_user: JWTUser = Depends(get_current_user),

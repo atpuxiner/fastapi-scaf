@@ -12,11 +12,14 @@ API_MOD_PREFIX = "app.api"
 API_PREFIX = "/api"
 
 
-def register_ping_router(app: FastAPI):
-    mod_obj = importlib.import_module(f"{API_MOD_PREFIX}.ping")
-    mod_obj_str = "ping_router"
+def register_default_router(app: FastAPI, mod_str: str = "default", obj_suffix: str = "_router"):
+    """
+    注册默认路由
+    """
+    mod_obj = importlib.import_module(f"{API_MOD_PREFIX}.{mod_str}")
+    mod_obj_str = f"{mod_str}{obj_suffix}"
     router = getattr(mod_obj, mod_obj_str)
-    app.include_router(router, prefix=API_PREFIX)
+    app.include_router(router, prefix=API_PREFIX, tags=[mod_str])
 
 
 def register_routers_dynamically(app: FastAPI, api_version: str = "v1", obj_suffix: str = "_router"):
@@ -39,4 +42,4 @@ def register_routers_dynamically(app: FastAPI, api_version: str = "v1", obj_suff
             if not hasattr(mod_obj, mod_obj_str):
                 continue
             router = getattr(mod_obj, mod_obj_str)
-            app.include_router(router, prefix=curr_api_prefix)
+            app.include_router(router, prefix=curr_api_prefix, tags=[mod_str])

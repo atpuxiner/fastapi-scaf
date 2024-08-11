@@ -93,28 +93,6 @@ class LoginUserReq(SQLModel):
     phone: str
     password: str
 
-    @property
-    def fields(self):
-        return ",".join([
-            "id",
-            "phone",
-            "password",
-            "jwt_key",
-            "name",
-            "age",
-            "gender",
-        ])
-
 
 class TokenUserReq(SQLModel):
     user_id: int
-
-    @property
-    def fields(self):
-        return ",".join([
-            "id",
-            "phone",
-            "name",
-            "age",
-            "gender",
-        ])

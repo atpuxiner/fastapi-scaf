@@ -35,26 +35,26 @@ class CMD:
     def __init__(self, args):
         args.target = args.target.replace(" ", "")
         if not args.target:
-            sys.stderr.write(f"{prog}: 'target' cannot be empty\n")
+            sys.stderr.write(f"{prog}: target cannot be empty\n")
             sys.exit(1)
         if not re.search(r"^[a-zA-Z][a-zA-Z0-9_]{0,64}$", args.target):
-            sys.stderr.write(f"{prog}: 'target' contains invalid characters\n")
+            sys.stderr.write(f"{prog}: target contains invalid characters\n")
             sys.exit(1)
         if args.command == "add":
             args.version = args.version.replace(" ", "")
             if not args.version:
-                sys.stderr.write(f"{prog}: 'version' cannot be empty\n")
+                sys.stderr.write(f"{prog}: version cannot be empty\n")
                 sys.exit(1)
             if not re.search(r"^v[a-zA-Z0-9_]{0,10}$", args.version):
-                sys.stderr.write(f"{prog}: 'version' contains invalid characters\n")
+                sys.stderr.write(f"{prog}: version contains invalid characters\n")
                 sys.exit(1)
         self.args = args
 
     def new(self):
         sys.stdout.write("Starting new project...\n")
         target = Path(self.args.target)
-        if target.exists():
-            sys.stderr.write(f"{prog}: {target} exists\n")
+        if target.is_dir() and any(target.iterdir()):
+            sys.stderr.write(f"{prog}: '{target}' exists\n")
             sys.exit(1)
         target.mkdir(parents=True, exist_ok=True)
         with open(here.joinpath("_project_tpl.json"), "r") as f:
@@ -79,12 +79,12 @@ class CMD:
         for m in need_mods:
             curr_mod_dir = work_dir.joinpath(m.replace("vn", self.args.version))
             if not curr_mod_dir.is_dir():
-                curr_mod_dir = curr_mod_dir.as_posix().replace(work_dir.as_posix(), "")
+                curr_mod_dir = curr_mod_dir.as_posix().replace(work_dir.as_posix(), "").lstrip("/")
                 sys.stderr.write(f"{prog}: '{curr_mod_dir}' not exists\n")
                 sys.exit(1)
             curr_mod_py = curr_mod_dir.joinpath(target + ".py")
             if curr_mod_py.is_file():
-                curr_mod_py = curr_mod_py.as_posix().replace(work_dir.as_posix(), "")
+                curr_mod_py = curr_mod_py.as_posix().replace(work_dir.as_posix(), "").lstrip("/")
                 sys.stderr.write(f"{prog}: '{curr_mod_py}' exists\n")
                 sys.exit(1)
         with open(here.joinpath("_api_tpl.json"), "r") as f:

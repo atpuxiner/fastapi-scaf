@@ -56,7 +56,7 @@ class JWTBearer(HTTPBearer):
         playload = verify_jwt(credentials)
         if playload is None:
             raise UnauthorizedError()
-        # 此处建议：jwt_key进行redis缓存
+        # 建议：jwt_key进行redis缓存
         async with g.db_async() as db:
             try:
                 statement = select(User).where(User.id == playload.get("id"))
@@ -66,7 +66,7 @@ class JWTBearer(HTTPBearer):
                     raise UnauthorizedError()
             except Exception as e:
                 raise UnauthorizedError(str(e))
-        # <== 此处建议
+        # <<< 建议
         verify_jwt(credentials, jwt_key=user.jwt_key)
         return JWTUser(
             id=playload.get("id"),

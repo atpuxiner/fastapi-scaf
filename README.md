@@ -1,9 +1,15 @@
 # fastapi-scaf
 
 ## What is this?
-* by: axiner
-* fastapi-scaf
-* This is a fastapi scaf.
+- by: axiner
+- fastapi-scaf
+- This is a fastapi scaf.
+  - new project
+  - add api
+  - about project:
+    - auto init project (conf, db, logger...)
+    - auto register router
+    - auto register middleware
 
 ## Installation
 This package can be installed using pip (>=Python3.9):
@@ -22,7 +28,7 @@ This package can be installed using pip (>=Python3.9):
   - `cd app`
   - `pip install -r requirements.txt`
   - `uvicorn main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=../config/uvicorn_logging.json --workers=5`
-  - more info: https://www.uvicorn.org/
+  - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
 
 ## Project Structure
 - ABD: ABD模式
@@ -46,6 +52,9 @@ This package can be installed using pip (>=Python3.9):
       │   ├── middleware              ├── (中间件)
       │   ├── router                  ├── (路由)
       │   └── utils                   └── (utils)
+      │   └── main.py
+      │   └── ...
+      │   └── requirements.txt
       ├── config                      (配置目录)
       ├── deploy                      (部署目录)
       ├── docs                        (文档目录)

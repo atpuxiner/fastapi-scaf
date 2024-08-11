@@ -5,7 +5,7 @@ class Cors:
     middleware_class = CORSMiddleware
     allow_origins = [
         "http://localhost:8000",
-        # 你可以添加更多的源
+        # 可添加其他所需
     ]
     allow_credentials = True
     allow_methods = ["*"]

@@ -4,7 +4,6 @@ from app.api.status import Status
 
 
 class CustomException(Exception):
-    """自定义异常"""
 
     def __init__(
             self,
@@ -27,7 +26,6 @@ class CustomException(Exception):
 
 
 class ParamsError(CustomException):
-    """参数错误异常"""
 
     def __init__(
             self,
@@ -40,7 +38,6 @@ class ParamsError(CustomException):
 
 
 class UnauthorizedError(CustomException):
-    """认证失败异常"""
 
     def __init__(
             self,

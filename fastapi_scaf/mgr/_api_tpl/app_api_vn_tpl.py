@@ -12,7 +12,7 @@ from app.middleware.auth import JWTUser, get_current_user
 tpl_router = APIRouter()
 
 
-@tpl_router.get("/tpl/{tpl_id}")
+@tpl_router.get("/tpl/{tpl_id}", summary="tpl详情")
 async def get(
         tpl_id: int,
         current_user: JWTUser = Depends(get_current_user),
