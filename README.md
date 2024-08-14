@@ -25,9 +25,8 @@ This package can be installed using pip (>=Python3.9):
 ## Project Run
 - 1）cd to project root dir
 - 2）execute command:
-  - `cd app`
   - `pip install -r requirements.txt`
-  - `uvicorn main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=../config/uvicorn_logging.json --workers=5`
+  - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=./config/uvicorn_logging.json --workers=5`
   - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
 
 ## Project Structure
@@ -51,17 +50,16 @@ This package can be installed using pip (>=Python3.9):
       │   │   └── ...                 │   └── (...)
       │   ├── middleware              ├── (中间件)
       │   ├── router                  ├── (路由)
-      │   └── utils                   └── (utils)
-      │   └── main.py
-      │   └── ...
-      │   └── requirements.txt
+      │   ├── utils                   ├── (utils)
+      │   └── main.py                 └── (main.py)
       ├── config                      (配置目录)
       ├── deploy                      (部署目录)
       ├── docs                        (文档目录)
       ├── log                         (日志目录)
       ├── .gitignore
       ├── LICENSE
-      └── README.md
+      ├── README.md
+      └── requirements.txt
   ```
 
 ## LICENSE

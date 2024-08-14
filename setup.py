@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from shutil import rmtree
 
-from pkg_resources import yield_lines
+# from pkg_resources import yield_lines
 from setuptools import Command, setup, find_packages
 
 from versions import Versions
@@ -23,8 +23,8 @@ __verison__ = Versions.ALL[0][0]
 
 with open('README.md', 'r', encoding='utf8') as f:
     long_description = f.read()
-with open('requirements.txt', 'r', encoding='utf8') as f:
-    install_requires = list(yield_lines(f.read()))
+# with open('requirements.txt', 'r', encoding='utf8') as f:
+#     install_requires = list(yield_lines(f.read()))
 
 
 def update_version():
@@ -91,7 +91,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(include=['fastapi_scaf']),
-    install_requires=install_requires,
+    # install_requires=install_requires,
     cmdclass={
         'bu': BuildCommand,
         'up': UploadCommand,

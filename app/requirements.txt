@@ -1,9 +1,0 @@
-# Python>=3.9
-fastapi>=0.111.0
-toollib>=1.5.8
-loguru>=0.7.2
-sqlmodel>=0.0.19
-aiosqlite>=0.20.0
-redis>=5.0.8
-PyJWT>=2.8.0
-bcrypt>=4.2.0

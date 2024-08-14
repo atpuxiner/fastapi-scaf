@@ -1,5 +1,5 @@
 debug: true
-log_dir: "../log"
+log_dir: "./log"
 db_echo: true
 worker_id: 0
 datacenter_id: 0

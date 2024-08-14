@@ -16,7 +16,9 @@ def gen_project_json():
         "log",
         ".gitignore",
         "LICENSE",
+        "main_dev.py",
         "README.md",
+        "requirements.txt",
     ]
 
     data = {}
