@@ -2,7 +2,7 @@ import traceback
 
 from fastapi import APIRouter, Depends
 
-from app.api.response import Response
+from app.api.response import JSONSuccess, JSONFailure
 from app.business.tpl import (
     GetTplBiz,
 )
@@ -24,5 +24,5 @@ async def get(
         errmsg = str(e)
         g.logger.error(errmsg)
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg=errmsg)
-    return Response.success(data)
+        return JSONFailure(msg=errmsg)
+    return JSONSuccess(data=data)

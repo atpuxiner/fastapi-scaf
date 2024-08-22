@@ -14,7 +14,7 @@ from pathlib import Path
 
 here = Path(__file__).absolute().parent
 
-prog = 'fastapi-scaf'
+prog = "fastapi-scaf"
 
 
 def main():
