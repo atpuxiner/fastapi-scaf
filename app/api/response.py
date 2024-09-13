@@ -7,10 +7,10 @@ from toollib.utils import now2timestamp
 from app.api.status import Status
 
 
-class JSONSuccess(JSONResponse):
+class Response:
 
-    def __init__(
-            self,
+    @staticmethod
+    def success(
             data: Union[dict, list, str] = None,
             msg: str = None,
             code: int = None,
@@ -19,8 +19,8 @@ class JSONSuccess(JSONResponse):
             headers: Mapping[str, str] = None,
             media_type: str = None,
             background: BackgroundTask = None,
-    ) -> None:
-        super().__init__(
+    ) -> JSONResponse:
+        return JSONResponse(
             content={
                 "time": now2timestamp(),
                 "msg": msg or status.msg,
@@ -33,25 +33,24 @@ class JSONSuccess(JSONResponse):
             background=background,
         )
 
-
-class JSONFailure(JSONResponse):
-
-    def __init__(
-            self,
+    @staticmethod
+    def failure(
             msg: str = None,
             code: int = None,
+            error: Union[str, Exception] = None,
             data: Union[dict, list, str] = None,
             status: Status = Status.FAILURE,
             status_code: int = 200,
             headers: Mapping[str, str] = None,
             media_type: str = None,
             background: BackgroundTask = None,
-    ) -> None:
-        super().__init__(
+    ) -> JSONResponse:
+        return JSONResponse(
             content={
                 "time": now2timestamp(),
                 "msg": msg or status.msg,
                 "code": code or status.code,
+                "error": str(error),
                 "data": data,
             },
             status_code=status_code,

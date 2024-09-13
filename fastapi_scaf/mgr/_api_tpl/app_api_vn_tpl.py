@@ -2,7 +2,7 @@ import traceback
 
 from fastapi import APIRouter, Depends
 
-from app.api.response import JSONSuccess, JSONFailure
+from app.api.response import Response
 from app.business.tpl import (
     GetTplBiz,
 )
@@ -21,8 +21,6 @@ async def get(
         tpl_biz = GetTplBiz(tpl_id=tpl_id)
         data = await tpl_biz.get()
     except Exception as e:
-        errmsg = str(e)
-        g.logger.error(errmsg)
         g.logger.error(traceback.format_exc())
-        return JSONFailure(msg=errmsg)
-    return JSONSuccess(data=data)
+        return Response.failure(msg="tpl详情失败", error=e)
+    return Response.success(data=data)
