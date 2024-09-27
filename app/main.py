@@ -16,7 +16,7 @@ from app import (
 
 app = FastAPI()
 
-initializer.setup()
+initializer.g.setup()
 router.register_default_router(app)
 router.register_routers_dynamically(app, api_version='v1')
 middleware.register_middlewares(app)

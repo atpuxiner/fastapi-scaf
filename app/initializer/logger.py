@@ -13,7 +13,7 @@ LOG_RETENTION = "15 days"
 
 def init_logger(
         debug: bool,
-        log_dir: str,
+        log_dir: str = None,
 ) -> Logger:
     logger.remove(None)
     _lever = "DEBUG" if debug else "INFO"

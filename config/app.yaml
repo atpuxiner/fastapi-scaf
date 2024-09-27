@@ -1,11 +1,10 @@
 debug: true
-log_dir: "./log"
-db_echo: true
-worker_id: 0
-datacenter_id: 0
+log_dir: ./log
 # #
-db_url:
-db_async_url:
+db_url: sqlite:///app.sqlite3
+db_async_url: sqlite+aiosqlite:///app.sqlite3
 redis_host:
 redis_port:
 redis_db:
+snow_worker_id: 0
+snow_datacenter_id: 0

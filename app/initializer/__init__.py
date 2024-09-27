@@ -8,7 +8,7 @@ from toollib.redis_cli import RedisCli
 from toollib.utils import Singleton
 
 from app.initializer.conf import init_conf
-from app.initializer.db import init_db_async, db_create_tables_dynamically
+from app.initializer.db import init_db_async
 from app.initializer.logger import init_logger
 from app.initializer.redis import init_redis
 from app.initializer.snow import init_snow
@@ -24,17 +24,29 @@ class G(metaclass=Singleton):
     redis: RedisCli = None
     snow: SnowFlake = None
 
-
-def setup():
-    """
-    初始化
-    """
-    g.conf = init_conf()
-    g.logger = init_logger(debug=g.conf.debug, log_dir=g.conf.log_dir)
-    g.db_async = init_db_async(db_async_url=g.conf.db_async_url, db_echo=g.conf.db_echo)
-    db_create_tables_dynamically(db_url=g.conf.db_url, db_echo=g.conf.db_echo)
-    g.redis = init_redis(host=g.conf.redis_host, port=g.conf.redis_port, db=g.conf.redis_db)
-    g.snow = init_snow(worker_id=g.conf.worker_id, datacenter_id=g.conf.datacenter_id)
+    def setup(self):
+        """
+        初始化
+        """
+        self.conf = init_conf()
+        self.logger = init_logger(
+            debug=self.conf.debug,
+            log_dir=self.conf.log_dir,
+        )
+        self.db_async = init_db_async(
+            db_async_url=self.conf.db_async_url,
+            db_echo=self.conf.debug,
+            db_url=self.conf.db_url,
+        )
+        self.redis = init_redis(
+            host=self.conf.redis_host,
+            port=self.conf.redis_port,
+            db=self.conf.redis_db,
+        )
+        self.snow = init_snow(
+            worker_id=self.conf.snow_worker_id,
+            datacenter_id=self.conf.snow_datacenter_id,
+        )
 
 
 g = G()

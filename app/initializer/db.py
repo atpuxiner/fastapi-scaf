@@ -9,8 +9,6 @@ from app import APP_DIR
 
 DATATYPE_MOD_DIR = APP_DIR.joinpath("datatype")
 DATATYPE_MOD_PREFIX = "app.datatype"
-DEFAULT_DB_URL = f"sqlite:///{APP_DIR.parent.joinpath('app.sqlite3')}"
-DEFAULT_DB_ASYNC_URL = f"sqlite+aiosqlite:///{APP_DIR.parent.joinpath('app.sqlite3')}"
 
 
 def init_db(
@@ -19,8 +17,8 @@ def init_db(
         db_pool_size: int = 10,
         db_max_overflow: int = 5,
         db_pool_recycle: int = 3600,
+        is_create_tables: bool = True,
 ) -> scoped_session:
-    db_url = db_url or DEFAULT_DB_URL
     db_echo = db_echo or False
     kwargs = {
         "pool_size": db_pool_size,
@@ -35,6 +33,8 @@ def init_db(
         echo_pool=db_echo,
         **kwargs,
     )
+    if is_create_tables:
+        create_tables_dynamically(db_url=db_url, db_echo=db_echo, engine=engine)
     db_session = sessionmaker(engine, expire_on_commit=False)
     return scoped_session(db_session)
 
@@ -45,8 +45,9 @@ def init_db_async(
         db_pool_size: int = 10,
         db_max_overflow: int = 5,
         db_pool_recycle: int = 3600,
+        is_create_tables: bool = True,
+        db_url: str = None,
 ) -> sessionmaker:
-    db_async_url = db_async_url or DEFAULT_DB_ASYNC_URL
     db_echo = db_echo or False
     kwargs = {
         "pool_size": db_pool_size,
@@ -62,10 +63,12 @@ def init_db_async(
         **kwargs,
     )
     async_session_factory = sessionmaker(async_engine, expire_on_commit=False, class_=AsyncSession)  # noqa
+    if is_create_tables and db_url:
+        create_tables_dynamically(db_url=db_url, db_echo=db_echo)
     return async_session_factory
 
 
-def db_create_tables_dynamically(db_url: str, db_echo: bool = False, obj_suffix: str = ""):
+def create_tables_dynamically(db_url: str, db_echo: bool = False, obj_suffix: str = "", engine = None):
     """
     动态创建表
     要求：
@@ -74,11 +77,12 @@ def db_create_tables_dynamically(db_url: str, db_echo: bool = False, obj_suffix:
     :param db_url: db url
     :param db_echo: db echo
     :param obj_suffix: 对象后缀
+    :param engine: engine
     :return:
     """
     db_echo = db_echo or False
-    engine = create_engine(
-        url=db_url or DEFAULT_DB_URL,
+    engine = engine or create_engine(
+        url=db_url,
         echo=db_echo,
         echo_pool=db_echo,
     )
