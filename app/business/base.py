@@ -6,7 +6,7 @@ class BaseBiz:
     @staticmethod
     def format_all(rows, fields: List[str]) -> List[Dict[str, Optional[str]]]:
         if not rows:
-            return []
+            return list()
         return [dict(zip(fields, row)) for row in rows]
 
     @staticmethod
