@@ -9,14 +9,16 @@
 from fastapi import FastAPI
 
 from app import (
-    initializer,
     router,
     middleware,
 )
+from app.initializer import g
 
 app = FastAPI()
 
-initializer.g.setup()
+g.setup()
+g.logger.info(f"Using yaml '{g.conf.yaml_name}'")
+# #
 router.register_default_router(app)
 router.register_routers_dynamically(app, api_version='v1')
 middleware.register_middlewares(app)

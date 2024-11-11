@@ -1,0 +1,10 @@
+debug: true
+log_dir: ./log
+# #
+db_url: sqlite:///app_test.sqlite3
+db_async_url: sqlite+aiosqlite:///app_test.sqlite3
+redis_host:
+redis_port:
+redis_db:
+snow_worker_id: 0
+snow_datacenter_id: 0

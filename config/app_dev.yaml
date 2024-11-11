@@ -1,8 +1,8 @@
 debug: true
 log_dir: ./log
 # #
-db_url: sqlite:///app.sqlite3
-db_async_url: sqlite+aiosqlite:///app.sqlite3
+db_url: sqlite:///app_dev.sqlite3
+db_async_url: sqlite+aiosqlite:///app_dev.sqlite3
 redis_host:
 redis_port:
 redis_db:
