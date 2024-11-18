@@ -16,9 +16,9 @@ class Response:
             code: int = None,
             status: Status = Status.SUCCESS,
             status_code: int = 200,
-            headers: Mapping[str, str] = None,
-            media_type: str = None,
-            background: BackgroundTask = None,
+            headers: Mapping[str, str] | None = None,
+            media_type: str | None = None,
+            background: BackgroundTask | None = None,
     ) -> JSONResponse:
         return JSONResponse(
             content={
@@ -41,9 +41,9 @@ class Response:
             data: Union[dict, list, str] = None,
             status: Status = Status.FAILURE,
             status_code: int = 200,
-            headers: Mapping[str, str] = None,
-            media_type: str = None,
-            background: BackgroundTask = None,
+            headers: Mapping[str, str] | None = None,
+            media_type: str | None = None,
+            background: BackgroundTask | None = None,
     ) -> JSONResponse:
         return JSONResponse(
             content={

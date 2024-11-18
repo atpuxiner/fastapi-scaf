@@ -52,7 +52,7 @@ class Conf(BaseSettings):
         return self.yaml_conf.get(name, default)
 
     def load_yaml(self):
-        with open(self.yaml_path or str(YAML_PATH), 'r') as file:
+        with open(self.yaml_path or str(YAML_PATH), mode='r', encoding='utf-8') as file:
             return yaml.safe_load(file)
 
 

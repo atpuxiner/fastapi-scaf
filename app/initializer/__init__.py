@@ -2,13 +2,13 @@
 初始化
 """
 from loguru._logger import Logger  # noqa
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from toollib.guid import SnowFlake
 from toollib.redis_cli import RedisCli
 from toollib.utils import Singleton
 
 from app.initializer.conf import init_conf
-from app.initializer.db import init_db_async
+from app.initializer.db import init_db_async, init_db
 from app.initializer.logger import init_logger
 from app.initializer.redis import init_redis
 from app.initializer.snow import init_snow
@@ -20,7 +20,8 @@ class G(metaclass=Singleton):
     """
     conf = None
     logger: Logger = None
-    db_async: sessionmaker = None
+    db_session: scoped_session = None
+    db_async_session: sessionmaker = None
     redis: RedisCli = None
     snow: SnowFlake = None
 
@@ -33,10 +34,13 @@ class G(metaclass=Singleton):
             debug=self.conf.debug,
             log_dir=self.conf.log_dir,
         )
-        self.db_async = init_db_async(
-            db_async_url=self.conf.db_async_url,
+        # self.db_session = init_db(
+        #     db_url=self.conf.db_url,
+        #     db_echo=self.conf.debug,
+        # )
+        self.db_async_session = init_db_async(
+            db_url=self.conf.db_async_url,
             db_echo=self.conf.debug,
-            db_url=self.conf.db_url,
         )
         self.redis = init_redis(
             host=self.conf.redis_host,
@@ -52,6 +56,6 @@ class G(metaclass=Singleton):
 g = G()
 # 建议：
 # 为了避免G下的全局变量在未初始化时使用，
-# 请使用以下方式调用：g.conf.xxx
+# 请使用如下方式调用：g.conf.xxx
 # 而不是在模块预先定义全局变量再调用
 # <<< 建议

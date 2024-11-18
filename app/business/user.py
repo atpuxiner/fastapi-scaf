@@ -1,7 +1,3 @@
-from sqlalchemy import text, select
-from toollib.utils import now2timestamp
-
-from app.business.base import BaseBiz
 from app.datatype.user import (
     User,
     GetUserReq,
@@ -13,148 +9,142 @@ from app.datatype.user import (
     TokenUserReq,
 )
 from app.initializer import g
-from app.utils import auth
+from app.utils import auth, db_async
 
 
-class GetUserBiz(GetUserReq, BaseBiz):
+class GetUserBiz(GetUserReq):
 
     async def get(self):
-        async with g.db_async() as db:
-            result = await db.execute(
-                statement=text(f"select {', '.join(self.fields)} from user where id = :id"),
-                params={"id": self.user_id},
+        async with g.db_async_session() as session:
+            data = await db_async.query_one(
+                session=session,
+                model=User,
+                fields=self.fields,
+                filter_by={"id": self.user_id},
             )
-            row = result.first()
-            data = self.format_one(row, result.keys())
             return data
 
 
-class GetUserListBiz(GetUserListReq, BaseBiz):
+class GetUserListBiz(GetUserListReq):
 
     async def get_list(self):
-        async with g.db_async() as db:
-            result = await db.execute(
-                statement=text(f"select {', '.join(self.fields)} from user limit :size offset :offset"),
-                params={"size": self.size, "offset": self.offset},
+        async with g.db_async_session() as session:
+            data = await db_async.query_all(
+                session=session,
+                model=User,
+                fields=self.fields,
+                page=self.page,
+                size=self.size,
             )
-            rows = result.fetchall()
-            data = self.format_all(rows, result.keys())
-            total = 0
-            if rows:
-                result = await db.execute(text("select count(*) from user"))
-                total = result.scalar_one()
+            total = await db_async.query_total(session, User)
             return data, total
 
 
 class CreateUserBiz(CreateUserReq):
 
     async def create(self):
-        curr_timestamp = now2timestamp()
-        new_user = User(
-            id=g.snow.gen_uid(),
-            name=self.name,
-            phone=self.phone,
-            age=self.age,
-            gender=self.gender,
-            password=auth.hash_password(self.password),
-            jwt_key=auth.gen_jwt_key(),
-            created_at=curr_timestamp,
-            updated_at=curr_timestamp,
-        )
-        async with g.db_async() as db:
-            statement = select(User).where(User.phone == self.phone)
-            result = await db.execute(statement)
-            if result.scalar_one_or_none():
-                return False
-            db.add(new_user)
-            await db.commit()
-            return new_user.model_dump(include=self.fields)
+        async with g.db_async_session() as session:
+            id_ = await db_async.create(
+                session=session,
+                model=User,
+                data={
+                    "name": self.name,
+                    "phone": self.phone,
+                    "age": self.age,
+                    "gender": self.gender,
+                    "password": auth.hash_password(self.password),
+                    "jwt_key": auth.gen_jwt_key(),
+                },
+                filter_by={"phone": self.phone},
+            )
+            return id_
 
 
 class UpdateUserBiz(UpdateUserReq):
 
     async def update(self, user_id: int):
-        async with g.db_async() as db:
-            statement = select(User).where(User.id == user_id)
-            result = await db.execute(statement)
-            user = result.scalar_one_or_none()
-            if user is None:
-                return False
-            update_data = {
-                "name": self.name,
-                "age": self.age,
-                "gender": self.gender,
-                "updated_at": now2timestamp(),
-            }
-            for key, value in update_data.items():
-                if value is not None:
-                    setattr(user, key, value)
-            db.add(user)
-            await db.commit()
-            return True
+        async with g.db_async_session() as session:
+            count, msg = await db_async.update(
+                session=session,
+                model=User,
+                data=self.model_dump(),
+                filter_by={"id": user_id},
+            )
+            return count, msg
 
 
 class DeleteUserBiz(DeleteUserReq):
 
-    async def delete(self, user_id: int):
-        async with g.db_async() as db:
-            statement = select(User).where(User.id == user_id)
-            result = await db.execute(statement)
-            user = result.scalar_one_or_none()
-            if not user:
-                return False
-            await db.delete(user)
-            await db.commit()
-            return True
+    @staticmethod
+    async def delete(user_id: int):
+        async with g.db_async_session() as session:
+            count, msg = await db_async.delete(
+                session=session,
+                model=User,
+                filter_by={"id": user_id},
+            )
+            return count, msg
 
 
-class LoginUserBiz(LoginUserReq, BaseBiz):
+class LoginUserBiz(LoginUserReq):
 
     async def login(self):
-        async with g.db_async() as db:
-            statement = select(User).where(User.phone == self.phone)
-            result = await db.execute(statement)
-            user = result.scalar_one_or_none()
-            if not user or not auth.verify_password(self.password, user.password):
+        async with g.db_async_session() as session:
+            data = await db_async.query_one(
+                session=session,
+                model=User,
+                filter_by={"phone": self.phone},
+            )
+            if not data or not auth.verify_password(self.password, data.get("password")):
                 return None, "用户名或密码错误"
             new_jwt_key = auth.gen_jwt_key()
             token = auth.gen_jwt(
                 payload={
-                    "id": user.id,
-                    "phone": user.phone,
-                    "name": user.name,
-                    "age": user.age,
-                    "gender": user.gender,
+                    "id": data.get("id"),
+                    "phone": data.get("phone"),
+                    "name": data.get("name"),
+                    "age": data.get("age"),
+                    "gender": data.get("gender"),
                 },
                 jwt_key=new_jwt_key,
             )
-            user.jwt_key = new_jwt_key
-            db.add(user)
-            await db.commit()
+            # 更新jwt_key
+            await db_async.update(
+                session=session,
+                model=User,
+                data={"jwt_key": new_jwt_key},
+                filter_by={"phone": self.phone},
+            )
             return token, ""
 
 
-class TokenUserBiz(TokenUserReq, BaseBiz):
+class TokenUserBiz(TokenUserReq):
 
     async def token(self):
-        async with g.db_async() as db:
-            statement = select(User).where(User.id == self.user_id)
-            result = await db.execute(statement)
-            user = result.scalar_one_or_none()
-            if not user:
+        async with g.db_async_session() as session:
+            data = await db_async.query_one(
+                session=session,
+                model=User,
+                filter_by={"id": self.user_id},
+            )
+            if not data:
                 return None, "用户不存在"
             new_jwt_key = auth.gen_jwt_key()
             token = auth.gen_jwt(
                 payload={
-                    "id": user.id,
-                    "phone": user.phone,
-                    "name": user.name,
-                    "age": user.age,
-                    "gender": user.gender,
+                    "id": data.get("id"),
+                    "phone": data.get("phone"),
+                    "name": data.get("name"),
+                    "age": data.get("age"),
+                    "gender": data.get("gender"),
                 },
                 jwt_key=new_jwt_key,
             )
-            user.jwt_key = new_jwt_key
-            db.add(user)
-            await db.commit()
+            # 更新jwt_key
+            await db_async.update(
+                session=session,
+                model=User,
+                data={"jwt_key": new_jwt_key},
+                filter_by={"id": self.user_id},
+            )
             return token, ""

@@ -1,8 +1,17 @@
 debug: true
 log_dir: ./log
 # #
-db_url: sqlite:///app_test.sqlite3
-db_async_url: sqlite+aiosqlite:///app_test.sqlite3
+# 数据库：
+# --sqlite--
+db_url: sqlite:///app_dev.sqlite3
+db_async_url: sqlite+aiosqlite:///app_dev.sqlite3
+# ---mysql---
+#db_url: mysql+pymysql://root:Mimmm%40129@192.168.22.21:3306/app_dev?charset=utf8mb4
+#db_async_url: mysql+aiomysql://root:Mimmm%40129@192.168.22.21:3306/app_dev?charset=utf8mb4
+# ---postgresql---
+#db_url: postgresql://postgres:Mimmm%40129@192.168.22.21:5432/app_dev
+#db_async_url: postgresql+asyncpg://postgres:Mimmm%40129@192.168.22.21:5432/app_dev
+# <<< 数据库
 redis_host:
 redis_port:
 redis_db:

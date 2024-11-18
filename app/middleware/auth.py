@@ -3,23 +3,23 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
 from fastapi.security.utils import get_authorization_scheme_param
-from sqlalchemy import select
-from sqlmodel import SQLModel
+from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
 from app.api.exception import UnauthorizedError
 from app.datatype.user import User
 from app.initializer import g
+from app.utils import db_async
 from app.utils.auth import verify_jwt
 
 
-class JWTUser(SQLModel):
-    id: int
-    phone: str
-    name: str
-    age: int
-    gender: int
+class JWTUser(BaseModel):
+    id: int = None
+    phone: str = None
+    name: str = None
+    age: int = None
+    gender: int = None
 
 
 class JWTAuthorizationCredentials(HTTPAuthorizationCredentials):
@@ -57,17 +57,17 @@ class JWTBearer(HTTPBearer):
         if playload is None:
             raise UnauthorizedError()
         # 建议：jwt_key进行redis缓存
-        async with g.db_async() as db:
-            try:
-                statement = select(User).where(User.id == playload.get("id"))
-                result = await db.execute(statement)
-                user = result.scalar_one_or_none()
-                if user is None:
-                    raise UnauthorizedError()
-            except Exception as e:
-                raise UnauthorizedError(str(e))
+        async with g.db_async_session() as session:
+            data = await db_async.query_one(
+                session=session,
+                model=User,
+                fields=["jwt_key"],
+                filter_by={"id": playload.get("id")}
+            )
+            if not data:
+                raise UnauthorizedError()
         # <<< 建议
-        verify_jwt(credentials, jwt_key=user.jwt_key)
+        verify_jwt(credentials, jwt_key=data.get("jwt_key"))
         return JWTUser(
             id=playload.get("id"),
             phone=playload.get("phone"),

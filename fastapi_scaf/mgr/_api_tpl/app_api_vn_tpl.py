@@ -6,6 +6,7 @@ from app.api.response import Response
 from app.business.tpl import (
     GetTplBiz,
 )
+from app.api.status import Status
 from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
@@ -20,6 +21,8 @@ async def get(
     try:
         tpl_biz = GetTplBiz(tpl_id=tpl_id)
         data = await tpl_biz.get()
+        if not data:
+            return Response.failure(msg="记录不存在", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="tpl详情失败", error=e)

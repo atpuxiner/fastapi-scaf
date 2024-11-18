@@ -1,10 +1,10 @@
-from app.business.base import BaseBiz
 from app.datatype.tpl import (
     GetTplReq,
 )
 
 
-class GetTplBiz(GetTplReq, BaseBiz):
+class GetTplBiz(GetTplReq):
 
     async def get(self):
+        # TODO: 业务逻辑
         pass

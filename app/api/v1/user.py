@@ -2,7 +2,6 @@ import traceback
 
 from fastapi import APIRouter, Depends
 
-from app.api.exception import ParamsError
 from app.api.response import Response
 from app.api.status import Status
 from app.business.user import (
@@ -28,6 +27,8 @@ async def get(
     try:
         user_biz = GetUserBiz(user_id=user_id)
         data = await user_biz.get()
+        if not data:
+            return Response.failure(msg="记录不存在", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="user详情失败", error=e)
@@ -54,16 +55,13 @@ async def create(
         user_biz: CreateUserBiz,
 ):
     try:
-        user_biz.validate_params()
-        data = await user_biz.create()
-        if not data:
-            return Response.failure(msg="用户已存在", status=Status.RECORD_EXISTS_ERROR)
-    except ParamsError as e:
-        return Response.failure(msg=e.msg, code=e.code, data=e.data)
+        id_ = await user_biz.create()
+        if not id_:
+            return Response.failure(msg="记录已存在", status=Status.RECORD_EXISTS_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="user创建失败", error=e)
-    return Response.success(data=data)
+    return Response.success(data={"id": id_})
 
 
 @user_router.put("/user/{user_id}", summary="user更新")
@@ -73,11 +71,11 @@ async def update(
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
-        status = await user_biz.update(user_id)
+        count, msg = await user_biz.update(user_id)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="user更新失败", error=e)
-    return Response.success(data={"id": user_id, "status": status})
+    return Response.success(data={"id": user_id, "count": count, "msg": msg})
 
 
 @user_router.delete("/user/{user_id}", summary="user删除")
@@ -87,11 +85,11 @@ async def delete(
 ):
     try:
         user_biz = DeleteUserBiz()
-        status = await user_biz.delete(user_id)
+        count, msg = await user_biz.delete(user_id)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="user删除失败", error=e)
-    return Response.success(data={"id": user_id, "status": status})
+    return Response.success(data={"id": user_id, "count": count, "msg": msg})
 
 
 @user_router.post("/user/login", summary="userLogin")

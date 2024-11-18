@@ -1,12 +1,22 @@
-# Python>=3.9
+# -*- coding: utf-8 -*-
+# Python>=3.11
 fastapi~=0.112.0
 uvicorn~=0.30.6
 toollib>=1.5.9
 python-dotenv~=1.0.1
 PyYAML~=6.0.2
 loguru~=0.7.2
-sqlmodel~=0.0.21
+# 数据库：
+sqlalchemy~=2.0.36
+# ---sqlite---
 aiosqlite~=0.20.0
+# ---mysql---
+#pymysql~=1.1.1
+#aiomysql~=0.2.0
+# ---postgresql---
+#psycopg2-binary
+#asyncpg
+# <<< 数据库
 redis~=5.0.8
 PyJWT~=2.9.0
 bcrypt~=4.2.0

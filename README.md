@@ -12,7 +12,7 @@
     - auto register middleware
 
 ## Installation
-This package can be installed using pip (>=Python3.9):
+This package can be installed using pip (>=Python3.11):
 > pip install fastapi-scaf
 
 ## Scaf Usage
