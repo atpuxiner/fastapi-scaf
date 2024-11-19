@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 # Python>=3.11
-fastapi~=0.112.0
-uvicorn~=0.30.6
-toollib>=1.5.9
+fastapi~=0.115.5
+uvicorn~=0.32.0
+toollib>=1.6.5
 python-dotenv~=1.0.1
 PyYAML~=6.0.2
 loguru~=0.7.2
 # 数据库：
-sqlalchemy~=2.0.36
+SQLAlchemy~=2.0.36
 # ---sqlite---
 aiosqlite~=0.20.0
 # ---mysql---
-#pymysql~=1.1.1
+#PyMySQL~=1.1.1
 #aiomysql~=0.2.0
 # ---postgresql---
-#psycopg2-binary
-#asyncpg
+#psycopg2-binary~=2.9.10
+#asyncpg~=0.30.0
 # <<< 数据库
-redis~=5.0.8
-PyJWT~=2.9.0
+redis~=5.2.0
+PyJWT~=2.10.0
 bcrypt~=4.2.0
