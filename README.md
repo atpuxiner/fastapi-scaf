@@ -1,39 +1,23 @@
 # fastapi-scaf
 
 ## What is this?
+
 - by: axiner
 - fastapi-scaf
 - This is a fastapi scaf.
-  - new project
-  - add api
-  - about project:
-    - auto init project (conf, db, logger...)
-    - auto register router
-    - auto register middleware
-
-## Installation
-This package can be installed using pip (>=Python3.11):
-> pip install fastapi-scaf
-
-## Scaf Usage
-- 1）new project
-  - `fastapi-scaf new <project_name>`
-- 2）add api
-  - `cd to project root dir`
-  - `fastapi-scaf add <api_name>`
-
-## Project Run
-- 1）cd to project root dir
-- 2）execute command:
-  - `pip install -r requirements.txt`
-  - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=./config/uvicorn_logging.json --workers=5`
-  - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
+    - new project
+    - add api
+    - about project:
+        - auto init project (conf, db, logger...)
+        - auto register router
+        - auto register middleware
 
 ## Project Structure
+
 - ABD: ABD模式
-  - A   api
-  - B   business
-  - D   datatype
+    - A api
+    - B business
+    - D datatype
 - 调用过程: main.py(initializer) - router(middleware) - api - business - (datatype)
 - 结构如下: (命名经过多次修改敲定，简洁易懂，ABD目录贴合避免杂乱无章)
   ```
@@ -62,5 +46,27 @@ This package can be installed using pip (>=Python3.11):
       └── requirements.txt
   ```
 
+## Installation
+
+This package can be installed using pip (>=Python3.11):
+> pip install fastapi-scaf
+
+## Scaf Usage
+
+- 1）new project
+    - `fastapi-scaf new <project_name>`
+- 2）add api
+    - `cd to project root dir`
+    - `fastapi-scaf add <api_name>`
+
+## Project Run
+
+- 1）cd to project root dir
+- 2）execute command:
+    - `pip install -r requirements.txt`
+    - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=./config/uvicorn_logging.json --workers=5`
+    - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
+
 ## LICENSE
+
 This project is released under the MIT License (MIT). See [LICENSE](LICENSE)
