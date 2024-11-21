@@ -17,7 +17,7 @@ from app.initializer import g
 app = FastAPI()
 
 g.setup()
-g.logger.info(f"Using yaml '{g.conf.yaml_name}'")
+g.logger.info(f"Using yaml '{g.conf.yamlname}'")
 # #
 router.register_default_router(app)
 router.register_routers_dynamically(app, api_version='v1')

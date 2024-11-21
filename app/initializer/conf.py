@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
@@ -7,21 +8,26 @@ from pydantic.v1 import BaseSettings
 from app import APP_DIR
 
 CONFIG_DIR = APP_DIR.parent.joinpath("config")
-ENV_PATH = os.environ.setdefault("ENV_PATH", str(CONFIG_DIR.joinpath(".env")))
-load_dotenv(dotenv_path=ENV_PATH)
-YAML_NAME = f"app_{os.environ.setdefault('appenv', 'dev')}.yaml"
-YAML_PATH = CONFIG_DIR.joinpath(YAML_NAME)
-if not YAML_PATH.exists():
-    raise RuntimeError(f"YAML配置不存在：{YAML_PATH}")
+
+load_dotenv(dotenv_path=os.environ.setdefault(
+    key="envpath",
+    value=str(CONFIG_DIR.joinpath(".env")))
+)
+# #
+yamlpath = Path(
+    os.environ.get("yamlpath") or
+    CONFIG_DIR.joinpath(f"app_{os.environ.setdefault(key='appenv', value='dev')}.yaml")
+)
+if not yamlpath.is_file():
+    raise RuntimeError(f"配置文件不存在：{yamlpath}")
 
 
 class Conf(BaseSettings):
     """配置"""
-    yaml_name: str = YAML_NAME
-    yaml_conf: dict = None
+    yamlname: str = yamlpath.name
+    yamlconf: dict = None
 
     # +++++++++ env中配置 +++++++++
-    yaml_path: str = None
 
     # +++++++++ 初始中配置 +++++++++
     debug: bool = None
@@ -32,6 +38,7 @@ class Conf(BaseSettings):
     redis_host: str = None
     redis_port: int = None
     redis_db: int = None
+    redis_password: str = None
     snow_worker_id: int = None
     snow_datacenter_id: int = None
 
@@ -41,18 +48,19 @@ class Conf(BaseSettings):
         # 特殊配置：比如设置默认值、类型转换或其他操作
         # 如：self.foo = _("foo", "foo")
         # <<< 特殊配置
-        self.yaml_conf = dict()
+        self.yamlconf = dict()
         return self
 
     def conf_from_yaml(self, name: str = None, default=None):
-        if not self.yaml_conf:
-            self.yaml_conf = self.load_yaml()
-            for k, v in self.yaml_conf.items():  # auto
+        if not self.yamlconf:
+            self.yamlconf = self.load_yaml()
+            for k, v in self.yamlconf.items():  # auto
                 setattr(self, k, v)
-        return self.yaml_conf.get(name, default)
+        return self.yamlconf.get(name, default)
 
-    def load_yaml(self):
-        with open(self.yaml_path or str(YAML_PATH), mode='r', encoding='utf-8') as file:
+    @staticmethod
+    def load_yaml():
+        with open(yamlpath, mode="r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
 

@@ -46,6 +46,7 @@ class G(metaclass=Singleton):
             host=self.conf.redis_host,
             port=self.conf.redis_port,
             db=self.conf.redis_db,
+            password=self.conf.redis_password,
         )
         self.snow = init_snow(
             worker_id=self.conf.snow_worker_id,

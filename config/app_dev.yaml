@@ -1,7 +1,7 @@
 debug: true
 log_dir: ./log
 # #
-# 数据库：
+# 数据库：请选择所需配置并修改
 # --sqlite--
 db_url: sqlite:///app_dev.sqlite3
 db_async_url: sqlite+aiosqlite:///app_dev.sqlite3
@@ -15,5 +15,6 @@ db_async_url: sqlite+aiosqlite:///app_dev.sqlite3
 redis_host:
 redis_port:
 redis_db:
+redis_password:
 snow_worker_id: 0
 snow_datacenter_id: 0
