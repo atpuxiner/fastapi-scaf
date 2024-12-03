@@ -33,7 +33,7 @@ def register_routers_dynamically(app: FastAPI, api_version: str = "v1", obj_suff
     :param obj_suffix: 对象后缀
     :return:
     """
-    curr_api_prefix = f"{API_PREFIX}/{api_version}"
+    curr_api_prefix = f"{API_PREFIX}/{api_version}".rstrip("/")
     for f in API_MOD_DIR.joinpath(api_version).glob("*.py"):
         if not f.name.startswith("__"):
             mod_str = f.name[:-3]

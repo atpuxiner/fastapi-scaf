@@ -1,9 +1,9 @@
 from app.datatype.tpl import (
-    GetTplReq,
+    GetTplMdl,
 )
 
 
-class GetTplBiz(GetTplReq):
+class GetTplBiz(GetTplMdl):
 
     async def get(self):
         # TODO: 业务逻辑

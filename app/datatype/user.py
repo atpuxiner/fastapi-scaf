@@ -1,11 +1,10 @@
 import re
-from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import Column, BigInteger, Integer, String
 from toollib.utils import now2timestamp
 
-from app.datatype import DeclBase
+from app.datatype import DeclBase, filter_fields
 from app.initializer import g
 
 
@@ -23,40 +22,48 @@ class User(DeclBase):
     updated_at = Column(BigInteger, onupdate=now2timestamp, default=now2timestamp, comment="更新时间")
 
 
-class GetUserReq(BaseModel):
-    user_id: int
+class GetUserMdl(BaseModel):
+    id: int
+    # #
+    phone: str = None
+    name: str = None
+    age: int = None
+    gender: int = None
+    created_at: int = None
+    updated_at: int = None
 
-    @property
-    def fields(self):
-        return [
-            "id",
-            "phone",
-            "name",
-            "age",
-            "gender",
-            "created_at",
-            "updated_at",
-        ]
-
-
-class GetUserListReq(BaseModel):
-    page: Optional[int] = 1
-    size: Optional[int] = 10
-
-    @property
-    def fields(self):
-        return [
-            "id",
-            "phone",
-            "name",
-            "age",
-            "gender",
-            "created_at",
-            "updated_at",
-        ]
+    @classmethod
+    def response_fields(cls):
+        return filter_fields(
+            cls,
+            exclude=[]
+        )
 
 
-class CreateUserReq(BaseModel):
+class GetUserListMdl(BaseModel):
+    page: int = 1
+    size: int = 10
+    # #
+    id: int = None
+    phone: str = None
+    name: str = None
+    age: int = None
+    gender: int = None
+    created_at: int = None
+    updated_at: int = None
+
+    @classmethod
+    def response_fields(cls):
+        return filter_fields(
+            cls,
+            exclude=[
+                "page",
+                "size",
+            ]
+        )
+
+
+class CreateUserMdl(BaseModel):
     phone: str = Field(..., pattern=r'^1[3-9]\d{9}$')
     password: str = Field(...)
     name: str = Field("", pattern=r'^[\u4e00-\u9fffA-Za-z]{1,50}$')
@@ -69,33 +76,21 @@ class CreateUserReq(BaseModel):
             raise ValueError("密码必须包含至少一个字母和一个数字，长度为6到20个字符")
         return v
 
-    @property
-    def fields(self):
-        return [
-            "id",
-            "phone",
-            "name",
-            "age",
-            "gender",
-            "created_at",
-            "updated_at",
-        ]
 
-
-class UpdateUserReq(BaseModel):
+class UpdateUserMdl(BaseModel):
     name: str = Field(None, pattern=r'^[\u4e00-\u9fffA-Za-z]{1,50}$')
     age: int = Field(None, ge=0, le=200)
     gender: int = Field(None, ge=0, le=2)
 
 
-class DeleteUserReq(BaseModel):
+class DeleteUserMdl(BaseModel):
     pass
 
 
-class LoginUserReq(BaseModel):
+class LoginUserMdl(BaseModel):
     phone: str
     password: str
 
 
-class TokenUserReq(BaseModel):
-    user_id: int
+class TokenUserMdl(BaseModel):
+    id: int

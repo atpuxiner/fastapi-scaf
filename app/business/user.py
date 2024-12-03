@@ -1,38 +1,38 @@
 from app.datatype.user import (
     User,
-    GetUserReq,
-    GetUserListReq,
-    CreateUserReq,
-    UpdateUserReq,
-    DeleteUserReq,
-    LoginUserReq,
-    TokenUserReq,
+    GetUserMdl,
+    GetUserListMdl,
+    CreateUserMdl,
+    UpdateUserMdl,
+    DeleteUserMdl,
+    LoginUserMdl,
+    TokenUserMdl,
 )
 from app.initializer import g
 from app.utils import auth, db_async
 
 
-class GetUserBiz(GetUserReq):
+class GetUserBiz(GetUserMdl):
 
     async def get(self):
         async with g.db_async_session() as session:
             data = await db_async.query_one(
                 session=session,
                 model=User,
-                fields=self.fields,
-                filter_by={"id": self.user_id},
+                fields=self.response_fields(),
+                filter_by={"id": self.id},
             )
             return data
 
 
-class GetUserListBiz(GetUserListReq):
+class GetUserListBiz(GetUserListMdl):
 
     async def get_list(self):
         async with g.db_async_session() as session:
             data = await db_async.query_all(
                 session=session,
                 model=User,
-                fields=self.fields,
+                fields=self.response_fields(),
                 page=self.page,
                 size=self.size,
             )
@@ -40,11 +40,11 @@ class GetUserListBiz(GetUserListReq):
             return data, total
 
 
-class CreateUserBiz(CreateUserReq):
+class CreateUserBiz(CreateUserMdl):
 
     async def create(self):
         async with g.db_async_session() as session:
-            id_ = await db_async.create(
+            return await db_async.create(
                 session=session,
                 model=User,
                 data={
@@ -57,36 +57,33 @@ class CreateUserBiz(CreateUserReq):
                 },
                 filter_by={"phone": self.phone},
             )
-            return id_
 
 
-class UpdateUserBiz(UpdateUserReq):
+class UpdateUserBiz(UpdateUserMdl):
 
     async def update(self, user_id: int):
         async with g.db_async_session() as session:
-            count, msg = await db_async.update(
+            return await db_async.update(
                 session=session,
                 model=User,
                 data=self.model_dump(),
                 filter_by={"id": user_id},
             )
-            return count, msg
 
 
-class DeleteUserBiz(DeleteUserReq):
+class DeleteUserBiz(DeleteUserMdl):
 
     @staticmethod
     async def delete(user_id: int):
         async with g.db_async_session() as session:
-            count, msg = await db_async.delete(
+            return await db_async.delete(
                 session=session,
                 model=User,
                 filter_by={"id": user_id},
             )
-            return count, msg
 
 
-class LoginUserBiz(LoginUserReq):
+class LoginUserBiz(LoginUserMdl):
 
     async def login(self):
         async with g.db_async_session() as session:
@@ -96,7 +93,7 @@ class LoginUserBiz(LoginUserReq):
                 filter_by={"phone": self.phone},
             )
             if not data or not auth.verify_password(self.password, data.get("password")):
-                return None, "用户名或密码错误"
+                return None
             new_jwt_key = auth.gen_jwt_key()
             token = auth.gen_jwt(
                 payload={
@@ -115,20 +112,20 @@ class LoginUserBiz(LoginUserReq):
                 data={"jwt_key": new_jwt_key},
                 filter_by={"phone": self.phone},
             )
-            return token, ""
+            return token
 
 
-class TokenUserBiz(TokenUserReq):
+class TokenUserBiz(TokenUserMdl):
 
     async def token(self):
         async with g.db_async_session() as session:
             data = await db_async.query_one(
                 session=session,
                 model=User,
-                filter_by={"id": self.user_id},
+                filter_by={"id": self.id},
             )
             if not data:
-                return None, "用户不存在"
+                return None
             new_jwt_key = auth.gen_jwt_key()
             token = auth.gen_jwt(
                 payload={
@@ -145,6 +142,6 @@ class TokenUserBiz(TokenUserReq):
                 session=session,
                 model=User,
                 data={"jwt_key": new_jwt_key},
-                filter_by={"id": self.user_id},
+                filter_by={"id": self.id},
             )
-            return token, ""
+            return token

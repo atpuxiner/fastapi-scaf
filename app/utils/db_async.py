@@ -43,7 +43,7 @@ async def query_one(
 ) -> dict:
     if not fields:
         fields = [field.name for field in model.__table__.columns]
-    query = select(*[getattr(model, field) for field in fields]).select_from(model)
+    query = select(*[getattr(model, field) for field in fields if hasattr(model, field)]).select_from(model)
     if filter_by:
         query = query.filter_by(**filter_by)
     result = await session.execute(query)
@@ -60,7 +60,7 @@ async def query_all(
 ) -> list[dict]:
     if not fields:
         fields = [field.name for field in model.__table__.columns]
-    query = select(*[getattr(model, field) for field in fields]).select_from(model)
+    query = select(*[getattr(model, field) for field in fields if hasattr(model, field)]).select_from(model)
     if filter_by:
         query = query.filter_by(**filter_by)
     if page and size:
@@ -107,7 +107,7 @@ async def update(
         data: dict,
         filter_by: dict,
         is_exclude_none: bool = True,
-) -> tuple[int, str]:
+) -> int:
     try:
         if is_exclude_none:
             data = {k: v for k, v in data.items() if v is not None}
@@ -121,21 +121,17 @@ async def update(
         result = await session.execute(stmt)
         count = len(result.fetchall())
         await session.commit()
-        if count > 0:
-            msg = f"更新成功"
-        else:
-            msg = "未找到匹配的记录"
     except Exception:
         await session.rollback()
         raise
-    return count, msg
+    return count
 
 
 async def delete(
         session,
         model,
         filter_by: dict,
-) -> tuple[int, str]:
+) -> int:
     try:
         stmt = (
             delete_(model)
@@ -146,11 +142,7 @@ async def delete(
         result = await session.execute(stmt)
         count = len(result.fetchall())
         await session.commit()
-        if count > 0:
-            msg = f"删除成功"
-        else:
-            msg = "未找到匹配的记录"
     except Exception:
         await session.rollback()
         raise
-    return count, msg
+    return count

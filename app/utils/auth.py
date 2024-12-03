@@ -21,8 +21,8 @@ def verify_jwt(token: str, jwt_key: str = None) -> dict:
         if not jwt_key:
             return jwt.decode(jwt=token, options={"verify_signature": False})
         return jwt.decode(jwt=token, key=jwt_key, algorithms=[ALGORITHM])
-    except jwt.PyJWTError as exc:
-        raise CustomException(status=Status.UNAUTHORIZED_ERROR, msg=str(exc))
+    except jwt.PyJWTError as e:
+        raise CustomException(status=Status.UNAUTHORIZED_ERROR, msg=str(e))
 
 
 def gen_jwt_key():

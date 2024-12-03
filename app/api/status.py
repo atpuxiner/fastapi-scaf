@@ -11,9 +11,6 @@ class Status(Enum):
     RECORD_NOT_EXIST_ERROR = (10000, '记录不存在')
     RECORD_EXISTS_ERROR = (10001, '记录已存在')
 
-    def __repr__(self):
-        return f'<{self.code}: {self.msg}>'
-
     @property
     def code(self):
         return self.value[0]
@@ -21,3 +18,10 @@ class Status(Enum):
     @property
     def msg(self):
         return self.value[1]
+
+    @classmethod
+    def collect_status(cls):
+        text = ""
+        for s in cls:
+            text += f"[{s.code}]{s.msg}\n"
+        return text

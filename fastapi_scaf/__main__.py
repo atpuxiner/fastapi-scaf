@@ -19,9 +19,9 @@ prog = "fastapi-scaf"
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["new", "add"], help="new project or add api")
-    parser.add_argument("target", help="project or api name")
-    parser.add_argument("--version", default="v1", help="api version")
+    parser.add_argument("command", choices=["new", "add"], help="创建项目或添加api")
+    parser.add_argument("target", help="项目或api名称")
+    parser.add_argument("version", nargs='?', default="v1", const="v1", help="api版本(当添加api时生效)")
     args = parser.parse_args()
     cmd = CMD(args)
     if args.command == "new":

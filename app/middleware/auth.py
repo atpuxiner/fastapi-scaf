@@ -1,13 +1,13 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
 from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
 from starlette.requests import Request
-from starlette.status import HTTP_403_FORBIDDEN
 
-from app.api.exception import UnauthorizedError
+from app.api.exception import CustomException
+from app.api.status import Status
 from app.datatype.user import User
 from app.initializer import g
 from app.utils import db_async
@@ -35,16 +35,17 @@ class JWTBearer(HTTPBearer):
         scheme, credentials = get_authorization_scheme_param(authorization)
         if not (authorization and scheme and credentials):
             if self.auto_error:
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="Not authenticated"
+                raise CustomException(
+                    msg="Not authenticated",
+                    status=Status.UNAUTHORIZED_ERROR,
                 )
             else:
                 return None
         if scheme.lower() != "bearer":
             if self.auto_error:
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN,
-                    detail="Invalid authentication credentials",
+                raise CustomException(
+                    msg="Invalid authentication credentials",
+                    status=Status.UNAUTHORIZED_ERROR,
                 )
             else:
                 return None
@@ -55,7 +56,7 @@ class JWTBearer(HTTPBearer):
     async def verify_credentials(credentials: str) -> JWTUser:
         playload = verify_jwt(credentials)
         if playload is None:
-            raise UnauthorizedError()
+            raise CustomException(status=Status.UNAUTHORIZED_ERROR)
         # 建议：jwt_key进行redis缓存
         async with g.db_async_session() as session:
             data = await db_async.query_one(
@@ -65,7 +66,7 @@ class JWTBearer(HTTPBearer):
                 filter_by={"id": playload.get("id")}
             )
             if not data:
-                raise UnauthorizedError()
+                raise CustomException(status=Status.UNAUTHORIZED_ERROR)
         # <<< 建议
         verify_jwt(credentials, jwt_key=data.get("jwt_key"))
         return JWTUser(

@@ -58,3 +58,74 @@ class Response:
             media_type=media_type,
             background=background,
         )
+
+
+def response_docs(
+        model=None,  # 模型（从模型的`response_fields`方法获取字段并解析）
+        data: dict = None,  # 数据（传值则不从模型中解析）
+        is_list: bool = False,
+        is_total: bool = False,
+        appends: dict = None,
+):
+    """响应文档"""
+
+    def _data_from_model(model_) -> dict:
+        """数据模板"""
+        data_ = {}
+        if hasattr(model_, "response_fields"):
+            all_fields = set(model_.response_fields())
+        else:
+            all_fields = set(model_.model_fields.keys())
+        for field_name in all_fields:
+            data_[field_name] = model_.model_fields[field_name].annotation.__name__
+        return data_
+
+    if not data and model:
+        data = _data_from_model(model)
+    if is_list:
+        data = data if isinstance(data, list) else [data]
+    if is_total:
+        data = {
+            "data": data,
+            "total": "int"
+        }
+    docs = {
+        0: {
+            "description": "操作成功",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "time": "时间戳",
+                        "msg": "消息",
+                        "code": "为0",
+                        "data": data
+                    }
+                }
+            }
+        },
+        1: {
+            "description": "操作失败",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "time": "时间戳",
+                        "msg": "消息",
+                        "code": "非0",
+                        "error": "异常消息",
+                        "data": "额外数据",
+                    }
+                }
+            }
+        },
+    }
+    if appends:
+        docs.update(appends)
+    docs.update({  # 覆盖默认的
+        200: {
+            "description": "[弃用]",
+        },
+        422: {
+            "description": "[弃用]",
+        },
+    })
+    return docs
