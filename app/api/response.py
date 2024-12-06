@@ -61,8 +61,8 @@ class Response:
 
 
 def response_docs(
-        model=None,  # 模型（从模型的`response_fields`方法获取字段并解析）
-        data: dict = None,  # 数据（传值则不从模型中解析）
+        model=None,  # 模型(BaseModel): 从模型中解析字段与类型
+        data: dict = None,  # 数据(dict)
         is_list: bool = False,
         is_total: bool = False,
         appends: dict = None,
@@ -80,13 +80,16 @@ def response_docs(
             data_[field_name] = model_.model_fields[field_name].annotation.__name__
         return data_
 
-    if not data and model:
-        data = _data_from_model(model)
+    _data = {}
+    if model:
+        _data = _data_from_model(model)
+    if data:
+        _data.update(data)
     if is_list:
-        data = data if isinstance(data, list) else [data]
+        _data = _data if isinstance(_data, list) else [_data]
     if is_total:
-        data = {
-            "data": data,
+        _data = {
+            "data": _data,
             "total": "int"
         }
     docs = {
@@ -98,7 +101,7 @@ def response_docs(
                         "time": "时间戳",
                         "msg": "消息",
                         "code": "为0",
-                        "data": data
+                        "data": _data
                     }
                 }
             }
@@ -120,7 +123,7 @@ def response_docs(
     }
     if appends:
         docs.update(appends)
-    docs.update({  # 覆盖默认的
+    docs.update({  # 覆盖默认
         200: {
             "description": "[弃用]",
         },

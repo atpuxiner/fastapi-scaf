@@ -11,6 +11,7 @@
         - auto init project (conf, db, logger...)
         - auto register router
         - auto register middleware
+    - more docs: [请点击链接](https://blog.csdn.net/atpuxiner/article/details/144291336?fromshare=blogdetail&sharetype=blogdetail&sharerId=144291336&sharerefer=PC&sharesource=atpuxiner&sharefrom=from_link)
 
 ## Project Structure
 
@@ -64,7 +65,7 @@ This package can be installed using pip (>=Python3.11):
 - 1）cd to project root dir
 - 2）execute command:
     - `pip install -r requirements.txt`
-    - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=debug --log-config=./config/uvicorn_logging.json --workers=5`
+    - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=info --log-config=./config/uvicorn_logging.json --workers=5`
     - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
 
 ## LICENSE
