@@ -93,8 +93,8 @@ def response_docs(
             "total": "int"
         }
     docs = {
-        0: {
-            "description": "操作成功",
+        200: {
+            "description": "操作成功【code为0 & http状态码200】",
             "content": {
                 "application/json": {
                     "example": {
@@ -106,8 +106,8 @@ def response_docs(
                 }
             }
         },
-        1: {
-            "description": "操作失败",
+        500: {
+            "description": "操作失败【code非0 & http状态码200】",
             "content": {
                 "application/json": {
                     "example": {
@@ -120,15 +120,11 @@ def response_docs(
                 }
             }
         },
-    }
-    if appends:
-        docs.update(appends)
-    docs.update({  # 覆盖默认
-        200: {
-            "description": "[弃用]",
-        },
+        # 覆盖默认
         422: {
             "description": "[弃用]",
         },
-    })
+    }
+    if appends:
+        docs.update(appends)
     return docs
