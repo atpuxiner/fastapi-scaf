@@ -1,7 +1,7 @@
 debug: false
 log_dir: ./log
 # #
-# 数据库：请选择所需配置并修改
+# 数据库：请选择所需并修改
 # --sqlite--
 db_url: sqlite:///app_prod.sqlite3
 db_async_url: sqlite+aiosqlite:///app_prod.sqlite3
