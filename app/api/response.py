@@ -61,8 +61,8 @@ class Response:
 
 
 def response_docs(
-        model=None,  # 模型(BaseModel): 从模型中解析字段与类型
-        data: dict = None,  # 数据(dict)
+        model=None,  # 模型(BaseModel): 自动从模型中解析字段与类型
+        data: dict = None,  # 数据(dict): 直接给定字段与类型
         is_list: bool = False,
         is_total: bool = False,
         appends: dict = None,
@@ -93,7 +93,7 @@ def response_docs(
             "total": "int"
         }
     docs = {
-        200: {
+        200: {  # 键应为0
             "description": "操作成功【code为0 & http状态码200】",
             "content": {
                 "application/json": {
@@ -106,7 +106,7 @@ def response_docs(
                 }
             }
         },
-        500: {
+        422: {  # 键应非0
             "description": "操作失败【code非0 & http状态码200】",
             "content": {
                 "application/json": {
@@ -119,10 +119,6 @@ def response_docs(
                     }
                 }
             }
-        },
-        # 覆盖默认
-        422: {
-            "description": "[弃用]",
         },
     }
     if appends:
