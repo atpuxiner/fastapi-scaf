@@ -1,17 +1,9 @@
+# 请根据自身需求修改
 debug: false
 log_dir: ./log
 # #
-# 数据库：请选择所需并修改
-# --sqlite--
-db_url: sqlite:///app_prod.sqlite3
-db_async_url: sqlite+aiosqlite:///app_prod.sqlite3
-# ---mysql---
-#db_url: mysql+pymysql://root:Mimmm%40129@192.168.22.21:3306/app_prod?charset=utf8mb4
-#db_async_url: mysql+aiomysql://root:Mimmm%40129@192.168.22.21:3306/app_prod?charset=utf8mb4
-# ---postgresql---
-#db_url: postgresql://postgres:Mimmm%40129@192.168.22.21:5432/app_prod
-#db_async_url: postgresql+asyncpg://postgres:Mimmm%40129@192.168.22.21:5432/app_prod
-# <<< 数据库
+db_url: sqlite:///app_prod.sqlite
+db_async_url: sqlite+aiosqlite:///app_prod.sqlite
 redis_host:
 redis_port:
 redis_db:

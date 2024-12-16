@@ -6,17 +6,8 @@ toollib>=1.6.5
 python-dotenv~=1.0.1
 PyYAML~=6.0.2
 loguru~=0.7.2
-# 数据库：
 SQLAlchemy~=2.0.36
-# ---sqlite---
 aiosqlite~=0.20.0
-# ---mysql---
-#PyMySQL~=1.1.1
-#aiomysql~=0.2.0
-# ---postgresql---
-#psycopg2-binary~=2.9.10
-#asyncpg~=0.30.0
-# <<< 数据库
 redis~=5.2.0
-PyJWT~=2.10.0
+PyJWT~=2.10.1
 bcrypt~=4.2.0
