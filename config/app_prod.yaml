@@ -2,11 +2,11 @@
 debug: false
 log_dir: ./log
 # #
-db_url: sqlite:///app_prod.sqlite
-db_async_url: sqlite+aiosqlite:///app_prod.sqlite
+snow_worker_id: 0
+snow_datacenter_id: 0
 redis_host:
 redis_port:
 redis_db:
 redis_password:
-snow_worker_id: 0
-snow_datacenter_id: 0
+db_url: sqlite:///app_prod.sqlite
+db_async_url: sqlite+aiosqlite:///app_prod.sqlite

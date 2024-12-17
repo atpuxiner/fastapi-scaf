@@ -33,14 +33,14 @@ class Conf(BaseSettings):
     debug: bool = None
     log_dir: str = None
     # #
-    db_url: str = None
-    db_async_url: str = None
+    snow_worker_id: int = None
+    snow_datacenter_id: int = None
     redis_host: str = None
     redis_port: int = None
     redis_db: int = None
     redis_password: str = None
-    snow_worker_id: int = None
-    snow_datacenter_id: int = None
+    db_url: str = None
+    db_async_url: str = None
 
     def setup(self, func_name: str = "conf_from_yaml"):
         _ = getattr(self, func_name)

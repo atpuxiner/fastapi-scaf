@@ -20,19 +20,30 @@ class G(metaclass=Singleton):
     """
     conf = None
     logger: Logger = None
+    snow: SnowFlake = None
+    redis: RedisCli = None
     db_session: scoped_session = None
     db_async_session: sessionmaker = None
-    redis: RedisCli = None
-    snow: SnowFlake = None
 
     def setup(self):
         """
         初始化
         """
+        # 注意：初始化顺序
         self.conf = init_conf()
         self.logger = init_logger(
             debug=self.conf.debug,
             log_dir=self.conf.log_dir,
+        )
+        self.snow = init_snow(
+            worker_id=self.conf.snow_worker_id,
+            datacenter_id=self.conf.snow_datacenter_id,
+        )
+        self.redis = init_redis(
+            host=self.conf.redis_host,
+            port=self.conf.redis_port,
+            db=self.conf.redis_db,
+            password=self.conf.redis_password,
         )
         # self.db_session = init_db(
         #     db_url=self.conf.db_url,
@@ -41,16 +52,6 @@ class G(metaclass=Singleton):
         self.db_async_session = init_db_async(
             db_url=self.conf.db_async_url,
             db_echo=self.conf.debug,
-        )
-        self.redis = init_redis(
-            host=self.conf.redis_host,
-            port=self.conf.redis_port,
-            db=self.conf.redis_db,
-            password=self.conf.redis_password,
-        )
-        self.snow = init_snow(
-            worker_id=self.conf.snow_worker_id,
-            datacenter_id=self.conf.snow_datacenter_id,
         )
 
 
