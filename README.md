@@ -50,16 +50,18 @@
 
 ## Installation
 
-This package can be installed using pip (>=Python3.11):
+This package can be installed using pip (Python>=3.11):
 > pip install fastapi-scaf
 
 ## Scaf Usage
 
-- 1）new project
-    - `fastapi-scaf new <project_name>`
-- 2）add api
+- 1）help document
+    - `fastapi-scaf -h`
+- 2）new project
+    - `fastapi-scaf new <myproj>`
+- 3）add api
     - `cd to project root dir`
-    - `fastapi-scaf add <api_name>`
+    - `fastapi-scaf add <myapi>`
 
 ## Project Run
 

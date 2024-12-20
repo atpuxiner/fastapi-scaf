@@ -68,20 +68,23 @@ class CMD:
             sys.stderr.write(f"{prog}: name cannot be empty\n")
             sys.exit(1)
         if args.command == "new":
-            if not re.search(r"^[a-zA-Z][a-zA-Z0-9_]{0,64}$", args.name):
-                sys.stderr.write(f"{prog}: name contains invalid characters\n")
+            pattern = r"^[a-zA-Z][a-zA-Z0-9_-]{0,64}$"
+            if not re.search(pattern, args.name):
+                sys.stderr.write(f"{prog}: '{args.name}' contains invalid characters, only support regex: {pattern}\n")
                 sys.exit(1)
         else:
             for t in args.name.strip(",").split(","):
-                if not re.search(r"^[a-zA-Z][a-zA-Z0-9_]{0,64}$", t):
-                    sys.stderr.write(f"{prog}: name contains invalid characters\n")
+                pattern = r"^[a-zA-Z][a-zA-Z0-9_]{0,64}$"
+                if not re.search(pattern, t):
+                    sys.stderr.write(f"{prog}: '{t}' contains invalid characters, only support regex: {pattern}\n")
                     sys.exit(1)
             args.vn = args.vn.replace(" ", "")
             if not args.vn:
                 sys.stderr.write(f"{prog}: vn cannot be empty\n")
                 sys.exit(1)
-            if not re.search(r"^v[a-zA-Z0-9_]{0,10}$", args.vn):
-                sys.stderr.write(f"{prog}: vn contains invalid characters\n")
+            pattern = r"^v[a-zA-Z0-9_]{0,10}$"
+            if not re.search(pattern, args.vn):
+                sys.stderr.write(f"{prog}: '{args.vn}' contains invalid characters, only support regex: {pattern}\n")
                 sys.exit(1)
         self.args = args
 
