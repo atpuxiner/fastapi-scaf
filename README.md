@@ -66,9 +66,10 @@ This package can be installed using pip (Python>=3.11):
 ## Project Run
 
 - 1）cd to project root dir
-- 2）execute command:
-    - `pip install -r requirements.txt`
-    - `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=info --log-config=./config/uvicorn_logging.json --workers=5`
+- 2）modify the configuration, such as for the database
+- 3）`pip install -r requirements.txt`
+- 4）`python main_dev.py`
+    - production environment: `uvicorn app.main:app --host=0.0.0.0 --port=8000 --log-level=info --log-config=./config/uvicorn_logging.json --workers=5`
     - about uvicorn: [www.uvicorn.org](https://www.uvicorn.org/)
 
 ## LICENSE

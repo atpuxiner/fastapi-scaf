@@ -124,7 +124,12 @@ class CMD:
                     )
                 # ##
                 f.write(v)
-        sys.stdout.write("Done\n")
+        sys.stdout.write("Done. Now run:\n"
+                         f"> 1. cd {name}\n"
+                         f"> 2. modify config, eg: db\n"
+                         f"> 3. pip install -r requirements.txt\n"
+                         f"> 4. python main_dev.py\n"
+                         f"> ----- more see README.md -----\n")
 
     @staticmethod
     def _db_requirements_map(name: str):
