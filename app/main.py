@@ -19,6 +19,5 @@ app = FastAPI()
 g.setup()
 g.logger.info(f"Using yaml '{g.conf.yamlname}'")
 # #
-router.register_routers(app, api_subdir='default', api_prefix='/api')
-router.register_routers(app, api_subdir='v1', api_prefix='/api/v1')
+router.register_routers(app)
 middleware.register_middlewares(app)

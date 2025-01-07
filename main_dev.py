@@ -94,7 +94,7 @@ if __name__ == '__main__':
     main(
         host='0.0.0.0',
         port=8000,
-        workers=1,
+        workers=2,
         log_level='debug',
         log_config='./config/uvicorn_logging.json',
         is_reload=True,

@@ -31,7 +31,7 @@ def gen_project_json():
         if include_mods_comp.search(file_str.split("/")[0]) and not exclude_exts_comp.search(file_str):
             with open(file, "r", encoding="utf-8") as f:
                 data[file_str] = f.read()
-    with open(project_dir.joinpath("fastapi_scaf/_project_tpl.json"), "w", encoding="utf-8") as f:
+    with open(project_dir.joinpath("fastapi_scaf/_project_tpl.json"), "w+", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
 
@@ -41,7 +41,7 @@ def gen_api_json():
     for file in listfile(_api_tpl):
         with open(file, "r", encoding="utf-8") as f:
             data[file.name] = f.read()
-    with open(project_dir.joinpath("fastapi_scaf/_api_tpl.json"), "w", encoding="utf-8") as f:
+    with open(project_dir.joinpath("fastapi_scaf/_api_tpl.json"), "w+", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
 

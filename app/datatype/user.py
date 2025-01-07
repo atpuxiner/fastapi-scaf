@@ -66,19 +66,19 @@ class GetUserListMdl(BaseModel):
 class CreateUserMdl(BaseModel):
     phone: str = Field(..., pattern=r'^1[3-9]\d{9}$')
     password: str = Field(...)
-    name: str = Field("", pattern=r'^[\u4e00-\u9fffA-Za-z]{1,50}$')
+    name: str = Field("", pattern=r'^[\u4e00-\u9fffA-Za-z0-9_\-.]{1,50}$')
     age: int = Field(0, ge=0, le=200)
     gender: int = Field(0, ge=0, le=2)
 
     @field_validator("password")
     def validate_password(cls, v):
-        if not re.match(r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,20}$', v):
-            raise ValueError("密码必须包含至少一个字母和一个数字，长度为6到20个字符")
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)\S{6,20}$', v):
+            raise ValueError("密码必须包含至少一个字母和一个数字，长度为6到20的非空白字符")
         return v
 
 
 class UpdateUserMdl(BaseModel):
-    name: str = Field(None, pattern=r'^[\u4e00-\u9fffA-Za-z]{1,50}$')
+    name: str = Field(None, pattern=r'^[\u4e00-\u9fffA-Za-z0-9_\-.]{1,50}$')
     age: int = Field(None, ge=0, le=200)
     gender: int = Field(None, ge=0, le=2)
 
@@ -94,3 +94,4 @@ class LoginUserMdl(BaseModel):
 
 class TokenUserMdl(BaseModel):
     id: int
+    exp_minutes: int = 24 * 60 * 30,

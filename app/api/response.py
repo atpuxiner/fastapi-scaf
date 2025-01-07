@@ -1,7 +1,7 @@
 from typing import Union, Mapping
 
 from starlette.background import BackgroundTask
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse, ContentStream
 from toollib.utils import now2timestamp
 
 from app.api.status import Status
@@ -50,9 +50,25 @@ class Response:
                 "time": now2timestamp(),
                 "msg": msg or status.msg,
                 "code": code or status.code,
-                "error": str(error),
+                "error": str(error) if error else None,
                 "data": data,
             },
+            status_code=status_code,
+            headers=headers,
+            media_type=media_type,
+            background=background,
+        )
+
+    @staticmethod
+    def stream(
+            content: ContentStream,
+            status_code: int = 200,
+            headers: Mapping[str, str] | None = None,
+            media_type: str | None = None,
+            background: BackgroundTask | None = None,
+    ) -> StreamingResponse:
+        return StreamingResponse(
+            content=content,
             status_code=status_code,
             headers=headers,
             media_type=media_type,

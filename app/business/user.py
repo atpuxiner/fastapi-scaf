@@ -104,6 +104,7 @@ class LoginUserBiz(LoginUserMdl):
                     "gender": data.get("gender"),
                 },
                 jwt_key=new_jwt_key,
+                exp_minutes=24 * 60 * 30,
             )
             # 更新jwt_key
             await db_async.update(
@@ -136,6 +137,7 @@ class TokenUserBiz(TokenUserMdl):
                     "gender": data.get("gender"),
                 },
                 jwt_key=new_jwt_key,
+                exp_minutes=self.exp_minutes,
             )
             # 更新jwt_key
             await db_async.update(

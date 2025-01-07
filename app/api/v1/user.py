@@ -17,6 +17,7 @@ from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
 user_router = APIRouter()
+_active = True  # 激活(若省略则默认True)
 
 
 # 注意：`user`仅为模块示例，请根据自身需求修改
@@ -33,7 +34,7 @@ user_router = APIRouter()
 )
 async def get(
         user_id: int,
-        current_user: JWTUser = Depends(get_current_user),
+        current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
     try:
         user_biz = GetUserBiz(id=user_id)

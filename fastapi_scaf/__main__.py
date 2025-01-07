@@ -8,6 +8,7 @@
 """
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -24,10 +25,14 @@ def main():
         prog=prog,
         description="fastapi脚手架，一键生成项目或api，让开发变得更简单",
         epilog="examples: \n"
-               "  `new`: %(prog)s new myproj --db=postgresql\n"
+               "  `new`: %(prog)s new myproj -d postgresql\n"
                "  `add`: %(prog)s add myapi",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}")
     parser.add_argument(
         "command",
         choices=["new", "add"],
@@ -37,21 +42,26 @@ def main():
         type=str,
         help="项目或api名称(多个api可英文逗号分隔)")
     parser.add_argument(
+        "-d",
         "--db",
         default="sqlite",
         choices=["sqlite", "mysql", "postgresql"],
         metavar="",
         help="`new`时可指定项目数据库(默认sqlite)")
     parser.add_argument(
+        "-v",
         "--vn",
         type=str,
         default="v1",
         metavar="",
         help="`add`时可指定api版本(默认v1)")
     parser.add_argument(
-        "--version",
-        action="version",
-        version=f"%(prog)s {__version__}")
+        "-t",
+        "--target",
+        default="abd",
+        choices=["a", "ab", "abd"],
+        metavar="",
+        help="`add`时可指定目标(默认abd, a:api,b:business,d:datatype)")
     args = parser.parse_args()
     cmd = CMD(args)
     if args.command == "new":
@@ -62,29 +72,29 @@ def main():
 
 class CMD:
 
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace):
         args.name = args.name.replace(" ", "")
         if not args.name:
             sys.stderr.write(f"{prog}: name cannot be empty\n")
             sys.exit(1)
         if args.command == "new":
-            pattern = r"^[a-zA-Z][a-zA-Z0-9_-]{0,64}$"
+            pattern = r"^[A-Za-z][A-Za-z0-9_-]{0,64}$"
             if not re.search(pattern, args.name):
-                sys.stderr.write(f"{prog}: '{args.name}' contains invalid characters, only support regex: {pattern}\n")
+                sys.stderr.write(f"{prog}: '{args.name}' only support regex: {pattern}\n")
                 sys.exit(1)
         else:
             for t in args.name.strip(",").split(","):
-                pattern = r"^[a-zA-Z][a-zA-Z0-9_]{0,64}$"
+                pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
                 if not re.search(pattern, t):
-                    sys.stderr.write(f"{prog}: '{t}' contains invalid characters, only support regex: {pattern}\n")
+                    sys.stderr.write(f"{prog}: '{t}' only support regex: {pattern}\n")
                     sys.exit(1)
             args.vn = args.vn.replace(" ", "")
             if not args.vn:
                 sys.stderr.write(f"{prog}: vn cannot be empty\n")
                 sys.exit(1)
-            pattern = r"^[a-zA-Z][a-zA-Z0-9_]{0,10}$"
+            pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
             if not re.search(pattern, args.vn):
-                sys.stderr.write(f"{prog}: '{args.vn}' contains invalid characters, only support regex: {pattern}\n")
+                sys.stderr.write(f"{prog}: '{args.vn}' only support regex: {pattern}\n")
                 sys.exit(1)
         self.args = args
 
@@ -101,7 +111,7 @@ class CMD:
             tplpath = name.joinpath(k)
             tplpath.parent.mkdir(parents=True, exist_ok=True)
             with open(tplpath, "w+", encoding="utf-8") as f:
-                # # rpl
+                # rpl
                 if re.search(r"README\.md$", k):
                     v = v.replace("# fastapi-scaf", "# fastapi-scaf ( => yourProj)")
                 if re.search(r"requirements\.txt$", k):
@@ -122,7 +132,7 @@ class CMD:
                         _default["db_async_url"].replace("/app_dev", _rpl_name),
                         _user["db_async_url"].replace("/app_dev", _rpl_name)
                     )
-                # ##
+                # < rpl
                 f.write(v)
         sys.stdout.write("Done. Now run:\n"
                          f"> 1. cd {name}\n"
@@ -170,44 +180,91 @@ class CMD:
         }.get(name)
 
     def add(self):
-        name = self.args.name
-        need_mods = [
-            "app/api/vn/",
-            "app/business/",
-            "app/datatype/",
-        ]
+        vn = self.args.vn
+        target = self.args.target
+
         work_dir = Path.cwd()
-
-        def check_mod(n_):
-            for mod_ in need_mods:
-                curr_mod_dir = work_dir.joinpath(mod_.replace("vn", self.args.vn))
-                if not curr_mod_dir.is_dir():
-                    curr_mod_dir = curr_mod_dir.as_posix().replace(work_dir.as_posix(), "").lstrip("/")
-                    sys.stderr.write(f"[error] not exists: {curr_mod_dir}\n")
-                    sys.exit(1)
-                curr_mod_path = curr_mod_dir.joinpath(n_ + ".py")
-                if curr_mod_path.is_file():
-                    curr_mod_path = curr_mod_path.as_posix().replace(work_dir.as_posix(), "").lstrip("/")
-                    return f"already exists: {curr_mod_path}\n"
-
-        def get_api_tpl():
-            with open(here.joinpath("_api_tpl.json"), "r", encoding="utf-8") as f:
-                return json.loads(f.read())
-
-        api_tpl = {}
-        for n in name.strip(",").split(","):
+        with open(here.joinpath("_api_tpl.json"), "r", encoding="utf-8") as f:
+            api_tpl_dict = json.loads(f.read())
+        if target == "a":
+            tpl_mods = [
+                "app/api",
+            ]
+        elif target == "ab":
+            tpl_mods = [
+                "app/api",
+                "app/business",
+            ]
+        else:
+            tpl_mods = [
+                "app/api",
+                "app/business",
+                "app/datatype",
+            ]
+        for mod in tpl_mods:
+            if not work_dir.joinpath(mod).is_dir():
+                sys.stderr.write(f"[error] not exists: {mod.replace('/', os.sep)}")
+                sys.exit(1)
+        for name in self.args.name.strip(",").split(","):
             sys.stdout.write(f"Adding api:\n")
-            if e := check_mod(n):
-                sys.stderr.write(f"[{n}] {e}")
-                continue
-            if not api_tpl:
-                api_tpl = get_api_tpl()
-            for mod in need_mods:
-                curr_mod = mod.replace("vn", self.args.vn) + n + ".py"
-                with open(work_dir.joinpath(curr_mod), "w+", encoding="utf-8") as f:
-                    sys.stdout.write(f"[{n}] Writing {curr_mod}\n")
-                    v = api_tpl[mod.replace("/", "_") + "tpl.py"]
-                    f.write(v.replace("tpl", n).replace("Tpl", n.title()))
+            flags = {
+                # 有影响的存在，则另一个独立
+                ## a
+                "0": [0],
+                "1": [0],
+                ## ab: ab相互影响
+                "00": [0, 0],
+                "10": [0, 1],
+                "01": [1, 0],
+                "11": [0, 0],
+                ## abd: b影响a，d影响b
+                "000": [0, 0, 0],
+                "100": [0, 0, 0],
+                "010": [1, 0, 0],
+                "001": [0, 1, 0],
+                "110": [0, 0, 0],
+                "101": [0, 1, 0],
+                "011": [1, 0, 0],
+                "111": [0, 0, 0],
+            }
+            e_flag = [
+                1 if (Path(work_dir, mod, vn if mod.endswith("api") else "", f"{name}.py")).is_file() else 0
+                for mod in tpl_mods
+            ]
+            p_flag = flags["".join(map(str, e_flag))]
+            for i, mod in enumerate(tpl_mods):
+                # dir
+                curr_mod_dir = work_dir.joinpath(mod)
+                if mod.endswith("api"):
+                    # vn dir
+                    curr_mod_dir = curr_mod_dir.joinpath(vn)
+                    if not curr_mod_dir.is_dir():
+                        curr_mod_dir_rel = curr_mod_dir.relative_to(work_dir)
+                        is_create = input(f"{curr_mod_dir_rel} not exists, create? [y/n]: ")
+                        if is_create.lower() == "y" or is_create == "":
+                            try:
+                                curr_mod_dir.mkdir(parents=True, exist_ok=True)
+                                with open(curr_mod_dir.joinpath("__init__.py"), "w+", encoding="utf-8") as f:
+                                    f.write("""\"\"\"\napi-{vn}\n\"\"\"\n\napi_prefix = "/api/{vn}"\n""".format(
+                                        vn=vn,
+                                    ))
+                            except Exception as e:
+                                sys.stderr.write(f"[error] create {curr_mod_dir_rel} failed: {e}\n")
+                                sys.exit(1)
+                        else:
+                            sys.exit(1)
+                # file
+                curr_mod_file = curr_mod_dir.joinpath(name + ".py")
+                curr_mod_file_rel = curr_mod_file.relative_to(work_dir)
+                if e_flag[i]:
+                    sys.stdout.write(f"[{name}] Existed {curr_mod_file_rel}\n")
+                else:
+                    with open(curr_mod_file, "w+", encoding="utf-8") as f:
+                        sys.stdout.write(f"[{name}] Writing {curr_mod_file_rel}\n")
+                        prefix = "only_" if p_flag[i] else f"{target}_"
+                        k = prefix + mod.replace("/", "_") + ".py"
+                        v = api_tpl_dict.get(k, "").replace("tpl", name).replace("Tpl", name.title())
+                        f.write(v)
 
 
 if __name__ == "__main__":
