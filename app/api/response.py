@@ -93,7 +93,7 @@ def response_docs(
             "total": "int"
         }
     docs = {
-        200: {  # 键应为0
+        200: {  # code为0
             "description": "操作成功【code为0 & http状态码200】",
             "content": {
                 "application/json": {
@@ -106,7 +106,7 @@ def response_docs(
                 }
             }
         },
-        422: {  # 键应非0
+        422: {  # code非0
             "description": "操作失败【code非0 & http状态码200】",
             "content": {
                 "application/json": {

@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-default_router = APIRouter()
+ping_router = APIRouter()
 
 
-@default_router.get(
+@ping_router.get(
     path="/ping",
     summary="ping",
 )

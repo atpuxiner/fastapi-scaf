@@ -39,7 +39,7 @@ def run_by_cmd(
     subprocess.run(cmd, shell=True)
 
 
-def run_by_uvicorn(
+def run_by_mod(
         host: str,
         port: int,
         workers: int,
@@ -87,7 +87,7 @@ def main(
     if args.is_cmd or is_cmd:
         run_by_cmd(**kwargs)
     else:
-        run_by_uvicorn(**kwargs)
+        run_by_mod(**kwargs)
 
 
 if __name__ == '__main__':

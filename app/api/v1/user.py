@@ -19,9 +19,9 @@ from app.middleware.auth import JWTUser, get_current_user
 user_router = APIRouter()
 
 
-# 注意：`user`仅为示例，请根据自身需求修改
-# 注意：`user`仅为示例，请根据自身需求修改
-# 注意：`user`仅为示例，请根据自身需求修改
+# 注意：`user`仅为模块示例，请根据自身需求修改
+# 注意：`user`仅为模块示例，请根据自身需求修改
+# 注意：`user`仅为模块示例，请根据自身需求修改
 
 
 @user_router.get(

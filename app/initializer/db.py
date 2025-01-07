@@ -39,7 +39,7 @@ def init_db(
 
     def create_tables():
         from app.datatype import DeclBase
-        _import_tables_dynamically()
+        _import_tables()
         DeclBase.metadata.create_all(engine)
 
     global _is_tables_created
@@ -76,7 +76,7 @@ def init_db_async(
 
     async def create_tables():
         from app.datatype import DeclBase
-        _import_tables_dynamically()
+        _import_tables()
         async with async_engine.begin() as conn:
             await conn.run_sync(DeclBase.metadata.create_all)
 
@@ -96,9 +96,8 @@ def init_db_async(
     return async_session
 
 
-def _import_tables_dynamically():
-    """动态导入表"""
+def _import_tables():
+    """导入表"""
     for f in DATATYPE_MOD_DIR.glob("*.py"):
         if not f.name.startswith("__"):
-            mod_str = f.name[:-3]
-            _ = importlib.import_module(f"{DATATYPE_MOD_PREFIX}.{mod_str}")
+            _ = importlib.import_module(f"{DATATYPE_MOD_PREFIX}.{f.stem}")

@@ -47,7 +47,7 @@ def main():
         type=str,
         default="v1",
         metavar="",
-        help="`add`时可指定api版本号(默认v1)")
+        help="`add`时可指定api版本(默认v1)")
     parser.add_argument(
         "--version",
         action="version",
@@ -82,7 +82,7 @@ class CMD:
             if not args.vn:
                 sys.stderr.write(f"{prog}: vn cannot be empty\n")
                 sys.exit(1)
-            pattern = r"^v[a-zA-Z0-9_]{0,10}$"
+            pattern = r"^[a-zA-Z][a-zA-Z0-9_]{0,10}$"
             if not re.search(pattern, args.vn):
                 sys.stderr.write(f"{prog}: '{args.vn}' contains invalid characters, only support regex: {pattern}\n")
                 sys.exit(1)
