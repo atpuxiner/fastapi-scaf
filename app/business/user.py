@@ -61,7 +61,7 @@ class CreateUserBiz(CreateUserMdl):
 
 class UpdateUserBiz(UpdateUserMdl):
 
-    async def update(self, user_id: int):
+    async def update(self, user_id: str):
         async with g.db_async_session() as session:
             return await db_async.update(
                 session=session,
@@ -74,7 +74,7 @@ class UpdateUserBiz(UpdateUserMdl):
 class DeleteUserBiz(DeleteUserMdl):
 
     @staticmethod
-    async def delete(user_id: int):
+    async def delete(user_id: str):
         async with g.db_async_session() as session:
             return await db_async.delete(
                 session=session,

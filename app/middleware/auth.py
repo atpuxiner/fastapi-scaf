@@ -16,7 +16,7 @@ from app.utils.auth import verify_jwt
 
 class JWTUser(BaseModel):
     # 字段与User对齐
-    id: int = None
+    id: str = None
     phone: str = None
     name: str = None
     age: int = None

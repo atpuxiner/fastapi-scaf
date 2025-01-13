@@ -208,16 +208,15 @@ class CMD:
         for name in self.args.name.strip(",").split(","):
             sys.stdout.write(f"Adding api:\n")
             flags = {
-                # 有影响的存在，则另一个独立
-                ## a
+                # a
                 "0": [0],
                 "1": [0],
-                ## ab: ab相互影响
+                # ab
                 "00": [0, 0],
                 "10": [0, 1],
                 "01": [1, 0],
                 "11": [0, 0],
-                ## abd: b影响a，d影响b
+                # abd
                 "000": [0, 0, 0],
                 "100": [0, 0, 0],
                 "010": [1, 0, 0],
@@ -245,7 +244,7 @@ class CMD:
                             try:
                                 curr_mod_dir.mkdir(parents=True, exist_ok=True)
                                 with open(curr_mod_dir.joinpath("__init__.py"), "w+", encoding="utf-8") as f:
-                                    f.write("""\"\"\"\napi-{vn}\n\"\"\"\n\napi_prefix = "/api/{vn}"\n""".format(
+                                    f.write("""\"\"\"\napi-{vn}\n\"\"\"\n\n_prefix = "/api/{vn}"\n""".format(
                                         vn=vn,
                                     ))
                             except Exception as e:

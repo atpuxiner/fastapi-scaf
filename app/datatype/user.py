@@ -11,7 +11,7 @@ from app.initializer import g
 class User(DeclBase):
     __tablename__ = "user"
 
-    id = Column(BigInteger, primary_key=True, default=g.snow.gen_uid, comment="主键")
+    id = Column(String(20), primary_key=True, default=g.snow.gen_uid, comment="主键")
     phone = Column(String(15), unique=True, index=True, nullable=False, comment="手机号")
     password = Column(String(128), nullable=True, comment="密码")
     jwt_key = Column(String(128), nullable=True, comment="jwtKey")
@@ -23,7 +23,7 @@ class User(DeclBase):
 
 
 class GetUserMdl(BaseModel):
-    id: int
+    id: str
     # #
     phone: str = None
     name: str = None
@@ -44,7 +44,7 @@ class GetUserListMdl(BaseModel):
     page: int = 1
     size: int = 10
     # #
-    id: int = None
+    id: str = None
     phone: str = None
     name: str = None
     age: int = None
@@ -93,5 +93,5 @@ class LoginUserMdl(BaseModel):
 
 
 class TokenUserMdl(BaseModel):
-    id: int
+    id: str
     exp_minutes: int = 24 * 60 * 30,

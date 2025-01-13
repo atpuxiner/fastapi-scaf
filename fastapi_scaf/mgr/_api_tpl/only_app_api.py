@@ -17,7 +17,7 @@ _active = True  # 激活(若省略则默认True)
     responses=response_docs(),
 )
 async def get(
-        tpl_id: int,
+        tpl_id: str,
         current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
     try:

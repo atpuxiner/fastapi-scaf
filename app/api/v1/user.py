@@ -33,7 +33,7 @@ _active = True  # 激活(若省略则默认True)
     ),
 )
 async def get(
-        user_id: int,
+        user_id: str,
         current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
     try:
@@ -74,7 +74,7 @@ async def get_list(
     path="/user",
     summary="user创建",
     responses=response_docs(data={
-        "id": "int",
+        "id": "str",
     }),
 )
 async def create(
@@ -94,11 +94,11 @@ async def create(
     path="/user/{user_id}",
     summary="user更新",
     responses=response_docs(data={
-        "id": "int",
+        "id": "str",
     }),
 )
 async def update(
-        user_id: int,
+        user_id: str,
         user_biz: UpdateUserBiz,
         current_user: JWTUser = Depends(get_current_user),
 ):
@@ -116,11 +116,11 @@ async def update(
     path="/user/{user_id}",
     summary="user删除",
     responses=response_docs(data={
-        "id": "int",
+        "id": "str",
     }),
 )
 async def delete(
-        user_id: int,
+        user_id: str,
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
