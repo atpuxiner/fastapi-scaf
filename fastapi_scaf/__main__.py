@@ -262,7 +262,9 @@ class CMD:
                         sys.stdout.write(f"[{name}] Writing {curr_mod_file_rel}\n")
                         prefix = "only_" if p_flag[i] else f"{target}_"
                         k = prefix + mod.replace("/", "_") + ".py"
-                        v = api_tpl_dict.get(k, "").replace("tpl", name).replace("Tpl", name.title())
+                        v = api_tpl_dict.get(k, "").replace(
+                            "tpl", name).replace(
+                            "Tpl", "".join([i[0].upper()+i[1:] if i else "_" for i in name.split("_")]))
                         f.write(v)
 
 
