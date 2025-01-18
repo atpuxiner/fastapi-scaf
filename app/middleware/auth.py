@@ -53,9 +53,8 @@ class JWTBearer(HTTPBearer):
         user = await self.verify_credentials(credentials)
         return JWTAuthorizationCredentials(scheme=scheme, credentials=credentials, user=user)
 
-    @staticmethod
-    async def verify_credentials(credentials: str) -> JWTUser:
-        playload = verify_jwt(credentials)
+    async def verify_credentials(self, credentials: str) -> JWTUser:
+        playload = await self._verify_jwt(credentials)
         if playload is None:
             raise CustomException(status=Status.UNAUTHORIZED_ERROR)
         # 建议：jwt_key进行redis缓存
@@ -69,7 +68,7 @@ class JWTBearer(HTTPBearer):
             if not data:
                 raise CustomException(status=Status.UNAUTHORIZED_ERROR)
         # <<< 建议
-        verify_jwt(credentials, jwt_key=data.get("jwt_key"))
+        await self._verify_jwt(credentials, jwt_key=data.get("jwt_key"))
         return JWTUser(
             id=playload.get("id"),
             phone=playload.get("phone"),
@@ -77,6 +76,13 @@ class JWTBearer(HTTPBearer):
             age=playload.get("age"),
             gender=playload.get("gender"),
         )
+
+    @staticmethod
+    async def _verify_jwt(token: str, jwt_key: str = None) -> dict:
+        try:
+            return verify_jwt(token=token, jwt_key=jwt_key)
+        except Exception as e:
+            raise CustomException(status=Status.UNAUTHORIZED_ERROR, msg=str(e))
 
 
 def get_current_user(

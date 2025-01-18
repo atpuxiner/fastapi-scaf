@@ -17,7 +17,8 @@ from app.initializer import g
 app = FastAPI()
 
 g.setup()
-g.logger.info(f"Using yaml '{g.conf.yamlname}'")
+g.logger.info(f"Starting server")
+g.logger.info(f"Using config file '{g.conf.yamlname}'")
 # #
 router.register_routers(app)
 middleware.register_middlewares(app)

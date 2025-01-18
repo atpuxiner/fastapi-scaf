@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import Column, String
 
 from app.datatype import DeclBase, filter_fields
@@ -9,11 +9,11 @@ class Tpl(DeclBase):
     __tablename__ = "tpl"
 
     id = Column(String(20), primary_key=True, default=g.snow.gen_uid, comment="主键")
-    name = Column(String(50), nullable=True, comment="名称")
+    name = Column(String(50), nullable=False, comment="名称")
 
 
 class GetTplMdl(BaseModel):
-    id: str
+    id: str = Field(...)
     # #
     name: str = None
 

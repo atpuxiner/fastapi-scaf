@@ -25,7 +25,7 @@ def init_logger(
     if log_dir:
         _log_dir = Path(log_dir)
         logger.add(
-            _log_dir.joinpath(f"{LOG_FILE_PREFIX}-info.log"),
+            _log_dir.joinpath(f"{LOG_FILE_PREFIX}-access.log"),
             format=LOG_FILE_FORMAT,
             level=_lever,
             rotation=LOG_ROTATION,
