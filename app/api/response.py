@@ -1,8 +1,8 @@
-from typing import Union, Mapping
+from typing import Mapping, get_type_hints
 
 from starlette.background import BackgroundTask
 from starlette.responses import JSONResponse, StreamingResponse, ContentStream
-from toollib.utils import now2timestamp
+from toollib.utils import now2timestamp, map_json_type
 
 from app.api.status import Status
 
@@ -11,7 +11,7 @@ class Response:
 
     @staticmethod
     def success(
-            data: Union[dict, list, str] = None,
+            data: dict | list | str | None = None,
             msg: str = None,
             code: int = None,
             status: Status = Status.SUCCESS,
@@ -37,8 +37,8 @@ class Response:
     def failure(
             msg: str = None,
             code: int = None,
-            error: Union[str, Exception] = None,
-            data: Union[dict, list, str] = None,
+            error: str | Exception | None = None,
+            data: dict | list | str | None = None,
             status: Status = Status.FAILURE,
             status_code: int = 200,
             headers: Mapping[str, str] | None = None,
@@ -85,53 +85,75 @@ def response_docs(
 ):
     """响应文档"""
 
-    def _data_from_model(model_) -> dict:
+    def _data_from_model(model_, default: str = "未知") -> dict:
         """数据模板"""
         data_ = {}
         if hasattr(model_, "response_fields"):
             all_fields = set(model_.response_fields())
         else:
             all_fields = set(model_.model_fields.keys())
+        type_hints = get_type_hints(model_)
         for field_name in all_fields:
-            data_[field_name] = model_.model_fields[field_name].annotation.__name__
+            try:
+                t = type_hints.get(field_name)
+                t = str(t).replace("<class '", "").replace("'>", "") if t else default
+            except Exception:
+                t = default
+            data_[field_name] = t
         return data_
 
-    _data = {}
+    full_data = {}
     if model:
-        _data = _data_from_model(model)
+        full_data = _data_from_model(model)
     if data:
-        _data.update(data)
+        full_data.update(data)
     if is_list:
-        _data = _data if isinstance(_data, list) else [_data]
+        full_data = full_data if isinstance(full_data, list) else [full_data]
     if is_total:
-        _data = {
-            "data": _data,
+        full_data = {
+            "data": full_data,
             "total": "int"
         }
+
+    def _format_value(value):
+        if isinstance(value, str):
+            _value = value.split("|")
+            if len(_value) > 1:
+                return " | ".join([map_json_type(_v.strip(), is_keep_integer=True) for _v in _value])
+            return map_json_type(value, is_keep_integer=True)
+        elif isinstance(value, dict):
+            return {k: _format_value(v) for k, v in value.items()}
+        elif isinstance(value, (list, tuple)):
+            return [_format_value(item) for item in value]
+        else:
+            return str(value)
+
+    format_data = {k: _format_value(v) for k, v in full_data.items()}
+
     docs = {
-        200: {  # code为0
+        200: {
             "description": "操作成功【code为0 & http状态码200】",
             "content": {
                 "application/json": {
                     "example": {
-                        "time": "时间戳",
-                        "msg": "消息",
-                        "code": "为0",
-                        "data": _data
+                        "time": "integer",
+                        "msg": "string",
+                        "code": "integer",
+                        "data": format_data
                     }
                 }
             }
         },
-        422: {  # code非0
+        422: {
             "description": "操作失败【code非0 & http状态码200】",
             "content": {
                 "application/json": {
                     "example": {
-                        "time": "时间戳",
-                        "msg": "消息",
-                        "code": "非0",
-                        "error": "异常消息",
-                        "data": "额外数据",
+                        "time": "integer",
+                        "msg": "string",
+                        "code": "integer",
+                        "error": "string",
+                        "data": "object | array | ...",
                     }
                 }
             }

@@ -2,7 +2,7 @@
 # Python>=3.11
 fastapi~=0.115.5
 uvicorn~=0.32.0
-toollib>=1.6.5
+toollib>=1.6.7
 python-dotenv~=1.0.1
 PyYAML~=6.0.2
 loguru~=0.7.2
