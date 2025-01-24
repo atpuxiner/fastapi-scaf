@@ -1,0 +1,120 @@
+"""
+@author axiner
+@version v1.0.0
+@created 2024/7/29 22:22
+@abstract runserver（更多参数请自行指定）
+@description
+@history
+"""
+import argparse
+import os
+import subprocess
+import sys
+
+
+def run_by_unicorn(
+        host: str,
+        port: int,
+        workers: int,
+        log_level: str,
+        is_reload: bool,
+):
+    cmd = (
+        'uvicorn app.main:app '
+        '--host={host} '
+        '--port={port} '
+        '--workers={workers} '
+        '--log-level={log_level} '
+        .format(
+            host=host,
+            port=port,
+            workers=workers,
+            log_level=log_level,
+        )
+    )
+    if is_reload:
+        cmd += f' --reload'
+    if os.path.isfile("./config/uvicorn_logging.json"):
+        cmd += f' --log-config=./config/uvicorn_logging.json'
+    subprocess.run(cmd, shell=True)
+
+
+def run_by_gunicorn(
+        host: str,
+        port: int,
+        workers: int,
+        log_level: str,
+        is_reload: bool,
+):
+    cmd = (
+        'gunicorn app.main:app '
+        '--worker-class=uvicorn.workers.UvicornWorker '
+        '--bind={host}:{port} '
+        '--workers={workers} '
+        '--log-level={log_level} '
+        '--access-logfile=- '
+        '--error-logfile=- '
+        .format(
+            host=host,
+            port=port,
+            workers=workers,
+            log_level=log_level,
+        )
+    )
+    if is_reload:
+        cmd += f' --reload'
+    subprocess.run(cmd, shell=True)
+
+
+def main(
+        host: str,
+        port: int,
+        workers: int,
+        log_level: str,
+        is_reload: bool,
+        is_gunicorn: bool,
+):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", type=str, metavar="", help="host")
+    parser.add_argument("--port", type=int, metavar="", help="port")
+    parser.add_argument("--workers", type=int, metavar="", help="进程数")
+    parser.add_argument("--log-level", type=str, metavar="", help="日志等级")
+    parser.add_argument("--is-reload", action='store_true', help="是否reload")
+    parser.add_argument("--is-gunicorn", action='store_true', help="是否gunicorn")
+    args = parser.parse_args()
+    kwargs = {
+        'host': args.host or host,
+        'port': args.port or port,
+        'workers': args.workers or workers,
+        'log_level': args.log_level or log_level,
+        'is_reload': args.is_reload or is_reload,
+    }
+    if (args.is_gunicorn or is_gunicorn) and not sys.platform.lower().startswith('win'):
+        try:
+            import gunicorn  # noqa
+        except ImportError:
+            sys.stderr.write("gunicorn未找到，正在尝试自动安装...\n")
+            try:
+                subprocess.run(
+                    ["pip", "install", "gunicorn"],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                sys.stderr.write("gunicorn安装成功\n")
+            except subprocess.CalledProcessError as e:
+                sys.stderr.write(f"gunicorn安装失败: {e.stderr.decode().strip()}\n")
+                raise
+        run_by_gunicorn(**kwargs)
+    else:
+        run_by_unicorn(**kwargs)
+
+
+if __name__ == '__main__':
+    main(
+        host='0.0.0.0',
+        port=8000,
+        workers=3,
+        log_level='debug',
+        is_reload=False,  # 适用于dev
+        is_gunicorn=False,  # 不支持win
+    )

@@ -138,7 +138,7 @@ class CMD:
                          f"> 1. cd {name}\n"
                          f"> 2. modify config, eg: db\n"
                          f"> 3. pip install -r requirements.txt\n"
-                         f"> 4. python main_dev.py\n"
+                         f"> 4. python runserver.py\n"
                          f"> ----- more see README.md -----\n")
 
     @staticmethod

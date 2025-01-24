@@ -2,6 +2,7 @@ import asyncio
 import importlib
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -40,7 +41,13 @@ def init_db(
     def create_tables():
         from app.datatype import DeclBase
         _import_tables()
-        DeclBase.metadata.create_all(engine)
+        try:
+            DeclBase.metadata.create_all(engine)
+        except OperationalError as e:
+            if "already exists" in str(e):
+                pass
+            else:
+                raise
 
     global _is_tables_created
     if is_create_tables and not _is_tables_created:
@@ -78,7 +85,13 @@ def init_db_async(
         from app.datatype import DeclBase
         _import_tables()
         async with async_engine.begin() as conn:
-            await conn.run_sync(DeclBase.metadata.create_all)
+            try:
+                await conn.run_sync(DeclBase.metadata.create_all)
+            except OperationalError as e:
+                if "already exists" in str(e):
+                    pass
+                else:
+                    raise
 
     global _is_tables_created
     if is_create_tables and not _is_tables_created:

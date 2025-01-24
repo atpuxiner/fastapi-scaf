@@ -14,24 +14,27 @@ load_dotenv(dotenv_path=os.environ.setdefault(
     value=str(CONFIG_DIR.joinpath(".env")))
 )
 # #
-yamlpath = Path(
-    os.environ.get("yamlpath") or
+appyaml = Path(
+    os.environ.get("appyaml") or
     CONFIG_DIR.joinpath(f"app_{os.environ.setdefault(key='appenv', value='dev')}.yaml")
 )
-if not yamlpath.is_file():
-    raise RuntimeError(f"配置文件不存在：{yamlpath}")
+if not appyaml.is_file():
+    raise RuntimeError(f"配置文件不存在：{appyaml}")
 
 
 class Conf(BaseSettings):
     """配置"""
-    yamlname: str = yamlpath.name
+    yamlname: str = appyaml.name
     yamlconf: dict = None
 
     # +++++++++ env中配置 +++++++++
 
     # +++++++++ 初始中配置 +++++++++
+    appname: str = None
+    appversion: str = None
     debug: bool = None
     log_dir: str = None
+    is_disable_docs: bool = None
     # #
     snow_worker_id: int = None
     snow_datacenter_id: int = None
@@ -46,7 +49,11 @@ class Conf(BaseSettings):
         _ = getattr(self, func_name)
         _()
         # 特殊配置：比如设置默认值、类型转换或其他操作
-        # 如：self.foo = _("foo", "foo")
+        self.appname = _("appname", default="DbyApp")
+        self.appversion = _("appversion", default="1.0.0")
+        self.debug = _("debug", default=False)
+        self.log_dir = _("log_dir", default="./log")
+        self.is_disable_docs = _("is_disable_docs", default=True)
         # <<< 特殊配置
         self.yamlconf = dict()
         return self
@@ -60,7 +67,7 @@ class Conf(BaseSettings):
 
     @staticmethod
     def load_yaml():
-        with open(yamlpath, mode="r", encoding="utf-8") as file:
+        with open(appyaml, mode="r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
 

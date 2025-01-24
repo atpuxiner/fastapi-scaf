@@ -16,9 +16,9 @@ def gen_project_json():
         "log",
         ".gitignore",
         "LICENSE",
-        "main_dev.py",
         "README.md",
         "requirements.txt",
+        "runserver.py",
     ]))
     exclude_exts_comp = re.compile('|'.join([
         ".pyc$",
