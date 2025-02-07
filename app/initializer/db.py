@@ -1,8 +1,7 @@
 import asyncio
 import importlib
 
-from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
+from sqlalchemy import create_engine, exc
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -43,7 +42,11 @@ def init_db(
         _import_tables()
         try:
             DeclBase.metadata.create_all(engine)
-        except OperationalError as e:
+        except (
+                exc.OperationalError,
+                exc.IntegrityError,
+                exc.ProgrammingError,
+        ) as e:
             if "already exists" in str(e):
                 pass
             else:
@@ -87,7 +90,11 @@ def init_db_async(
         async with async_engine.begin() as conn:
             try:
                 await conn.run_sync(DeclBase.metadata.create_all)
-            except OperationalError as e:
+            except (
+                    exc.OperationalError,
+                    exc.IntegrityError,
+                    exc.ProgrammingError,
+            ) as e:
                 if "already exists" in str(e):
                     pass
                 else:
@@ -100,11 +107,10 @@ def init_db_async(
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        if loop.is_running():
-            task = loop.create_task(create_tables())
-            loop.call_soon_threadsafe(task.add_done_callback, lambda t: t.result())
-        else:
-            loop.run_until_complete(create_tables())
+        task = loop.create_task(create_tables())
+        task.add_done_callback(lambda t: t.result() if not t.cancelled() else None)
+        if not loop.is_running():
+            loop.run_until_complete(task)
         _is_tables_created = True
     return async_session
 
