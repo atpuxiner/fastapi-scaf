@@ -18,7 +18,7 @@ class CustomException(Exception):
         self.status = status
 
     def __str__(self) -> str:
-        return f"[{self.code}]{self.msg}"
+        return f"{self.code} {self.msg}"
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.code!r}, {self.msg!r})>"

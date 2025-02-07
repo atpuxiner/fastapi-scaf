@@ -23,5 +23,5 @@ class Status(Enum):
     def collect_status(cls):
         text = ""
         for s in cls:
-            text += f"[{s.code}]{s.msg}\n"
+            text += f"{s.code} {s.msg}\n"
         return text

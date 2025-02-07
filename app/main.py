@@ -6,8 +6,6 @@
 @description
 @history
 """
-import logging
-
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
@@ -16,8 +14,6 @@ from app import (
     middleware,
 )
 from app.initializer import g
-
-logger = logging.getLogger("uvicorn")
 
 g.setup()
 # #
@@ -30,10 +26,13 @@ if g.conf.is_disable_docs is True:
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
-    logger.info(f"Using config file '{g.conf.yamlname}'")
-    logger.info(f"App name '{g.conf.appname}'")
-    logger.info(f"App version '{g.conf.appversion}'")
+    g.logger.info(f"Application using config file '{g.conf.yamlname}'")
+    g.logger.info(f"Application name '{g.conf.appname}'")
+    g.logger.info(f"Application version '{g.conf.appversion}'")
+    # #
+    g.logger.info("Application server running")
     yield
+    g.logger.info("Application server shutdown")
 
 
 app = FastAPI(
