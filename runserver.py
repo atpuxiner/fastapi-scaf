@@ -7,9 +7,10 @@
 @history
 """
 import argparse
-import os
 import subprocess
 import sys
+
+import uvicorn
 
 
 def run_by_unicorn(
@@ -19,24 +20,61 @@ def run_by_unicorn(
         log_level: str,
         is_reload: bool,
 ):
-    cmd = (
-        'uvicorn app.main:app '
-        '--host={host} '
-        '--port={port} '
-        '--workers={workers} '
-        '--log-level={log_level} '
-        .format(
-            host=host,
-            port=port,
-            workers=workers,
-            log_level=log_level,
-        )
+    log_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "()": "uvicorn.logging.DefaultFormatter",
+                "fmt": "%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s",
+                "use_colors": None
+            },
+            "access": {
+                "()": "uvicorn.logging.AccessFormatter",
+                "fmt": "%(asctime)s %(levelname)s %(client_addr)s - \"%(request_line)s\" %(status_code)s"
+            }
+        },
+        "handlers": {
+            "default": {
+                "formatter": "default",
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr"
+            },
+            "access": {
+                "formatter": "access",
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout"
+            }
+        },
+        "loggers": {
+            "uvicorn": {
+                "handlers": [
+                    "default"
+                ],
+                "level": "INFO",
+                "propagate": False
+            },
+            "uvicorn.error": {
+                "level": "INFO"
+            },
+            "uvicorn.access": {
+                "handlers": [
+                    "access"
+                ],
+                "level": "INFO",
+                "propagate": False
+            }
+        }
+    }
+    uvicorn.run(
+        app="app.main:app",
+        host=host,
+        port=port,
+        workers=workers,
+        log_level=log_level,
+        log_config=log_config,
+        reload=is_reload,
     )
-    if is_reload:
-        cmd += f' --reload'
-    if os.path.isfile("./config/uvicorn_logging.json"):
-        cmd += f' --log-config=./config/uvicorn_logging.json'
-    subprocess.run(cmd, shell=True)
 
 
 def run_by_gunicorn(
@@ -47,13 +85,13 @@ def run_by_gunicorn(
         is_reload: bool,
 ):
     cmd = (
-        'gunicorn app.main:app '
-        '--worker-class=uvicorn.workers.UvicornWorker '
-        '--bind={host}:{port} '
-        '--workers={workers} '
-        '--log-level={log_level} '
-        '--access-logfile=- '
-        '--error-logfile=- '
+        "gunicorn app.main:app "
+        "--worker-class=uvicorn.workers.UvicornWorker "
+        "--bind={host}:{port} "
+        "--workers={workers} "
+        "--log-level={log_level} "
+        "--access-logfile=- "
+        "--error-logfile=- "
         .format(
             host=host,
             port=port,
@@ -62,7 +100,7 @@ def run_by_gunicorn(
         )
     )
     if is_reload:
-        cmd += f' --reload'
+        cmd += f" --reload"
     subprocess.run(cmd, shell=True)
 
 
@@ -79,17 +117,17 @@ def main(
     parser.add_argument("--port", type=int, metavar="", help="port")
     parser.add_argument("--workers", type=int, metavar="", help="进程数")
     parser.add_argument("--log-level", type=str, metavar="", help="日志等级")
-    parser.add_argument("--is-reload", action='store_true', help="是否reload")
-    parser.add_argument("--is-gunicorn", action='store_true', help="是否gunicorn")
+    parser.add_argument("--is-reload", action="store_true", help="是否reload")
+    parser.add_argument("--is-gunicorn", action="store_true", help="是否gunicorn")
     args = parser.parse_args()
     kwargs = {
-        'host': args.host or host,
-        'port': args.port or port,
-        'workers': args.workers or workers,
-        'log_level': args.log_level or log_level,
-        'is_reload': args.is_reload or is_reload,
+        "host": args.host or host,
+        "port": args.port or port,
+        "workers": args.workers or workers,
+        "log_level": args.log_level or log_level,
+        "is_reload": args.is_reload or is_reload,
     }
-    if (args.is_gunicorn or is_gunicorn) and not sys.platform.lower().startswith('win'):
+    if (args.is_gunicorn or is_gunicorn) and not sys.platform.lower().startswith("win"):
         try:
             import gunicorn  # noqa
         except ImportError:
@@ -111,10 +149,10 @@ def main(
 
 if __name__ == '__main__':
     main(
-        host='0.0.0.0',
+        host="0.0.0.0",
         port=8000,
         workers=3,
-        log_level='debug',
+        log_level="debug",
         is_reload=False,  # 适用于dev
         is_gunicorn=False,  # 不支持win
     )
