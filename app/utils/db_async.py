@@ -105,44 +105,53 @@ async def update(
         session,
         model,
         data: dict,
-        filter_by: dict,
+        filter_by: dict | None,
         is_exclude_none: bool = True,
-) -> int:
+) -> list:
     try:
         if is_exclude_none:
             data = {k: v for k, v in data.items() if v is not None}
-        stmt = (
-            update_(model)
-            .values(**data)
-            .returning(model.id)
-        )
+        stmt = update_(model).values(**data)
         if filter_by:
             stmt = stmt.filter_by(**filter_by)
-        result = await session.execute(stmt)
-        count = len(result.fetchall())
+        if session.bind.dialect.name == "postgresql":
+            stmt = stmt.returning(model.id)
+            result = await session.execute(stmt)
+            updated_ids = [row[0] for row in result]
+        else:
+            query_stmt = select(model.id).filter_by(**filter_by)
+            result = await session.execute(query_stmt)
+            updated_ids = result.scalars().all()
+            if updated_ids:
+                await session.execute(stmt)
         await session.commit()
     except Exception:
         await session.rollback()
         raise
-    return count
+    return updated_ids
 
 
 async def delete(
         session,
         model,
-        filter_by: dict,
-) -> int:
+        filter_by: dict | None,
+) -> list:
     try:
-        stmt = (
-            delete_(model)
-            .returning(model.id)
-        )
+        stmt = delete_(model)
         if filter_by:
             stmt = stmt.filter_by(**filter_by)
-        result = await session.execute(stmt)
-        count = len(result.fetchall())
+        if session.bind.dialect.name == "postgresql":
+            stmt = stmt.returning(model.id)
+            result = await session.execute(stmt)
+            deleted_ids = [row[0] for row in result]
+        else:
+            query_stmt = select(model.id).filter_by(**filter_by)
+            result = await session.execute(query_stmt)
+            deleted_ids = result.scalars().all()
+            if deleted_ids:
+                await session.execute(stmt)
         await session.commit()
     except Exception:
         await session.rollback()
         raise
-    return count
+    return deleted_ids

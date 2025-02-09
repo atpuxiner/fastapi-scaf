@@ -103,8 +103,8 @@ async def update(
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
-        count = await user_biz.update(user_id)
-        if count == 0:
+        updated_ids = await user_biz.update(user_id)
+        if not updated_ids:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
@@ -125,8 +125,8 @@ async def delete(
 ):
     try:
         user_biz = DeleteUserBiz()
-        count = await user_biz.delete(user_id)
-        if count == 0:
+        deleted_ids = await user_biz.delete(user_id)
+        if not deleted_ids:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
