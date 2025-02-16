@@ -25,39 +25,83 @@ class G(metaclass=Singleton):
     db_session: scoped_session = None
     db_async_session: sessionmaker = None
 
-    def setup(self):
+    def __getattribute__(self, name):
+        try:
+            value = super().__getattribute__(name)
+        except AttributeError:
+            value = None
+        if value is None:
+            getter_name = f"_get_{name}"
+            getter_method = getattr(self.__class__, getter_name, None)
+            if callable(getter_method):
+                value = getter_method()
+                setattr(self, name, value)
+        return value
+
+    @classmethod
+    def _get_conf(cls):
+        if not cls.conf:
+            cls.conf = init_conf()
+        return cls.conf
+
+    @classmethod
+    def _get_logger(cls):
+        if not cls.logger:
+            cls.logger = init_logger(
+                debug=cls.conf.debug,
+                log_dir=cls.conf.log_dir,
+            )
+        return cls.logger
+
+    @classmethod
+    def _get_snow(cls):
+        if not cls.snow:
+            cls.snow = init_snow(
+                worker_id=cls.conf.snow_worker_id,
+                datacenter_id=cls.conf.snow_datacenter_id,
+            )
+        return cls.snow
+
+    @classmethod
+    def _get_redis(cls):
+        if not cls.redis:
+            cls.redis = init_redis(
+                host=cls.conf.redis_host,
+                port=cls.conf.redis_port,
+                db=cls.conf.redis_db,
+                password=cls.conf.redis_password,
+            )
+        return cls.redis
+
+    @classmethod
+    def _get_db_session(cls):
+        if not cls.db_session:
+            cls.db_session = init_db(
+                db_url=cls.conf.db_url,
+                db_echo=cls.conf.debug,
+            )
+        return cls.db_session
+
+    @classmethod
+    def _get_db_async_session(cls):
+        if not cls.db_async_session:
+            cls.db_async_session = init_db_async(
+                db_url=cls.conf.db_async_url,
+                db_echo=cls.conf.debug,
+            )
+        return cls.db_async_session
+
+    @classmethod
+    def setup(cls):
         """
         初始化
         """
-        # 注意：初始化顺序
-        self.conf = init_conf()
-        self.logger = init_logger(
-            debug=self.conf.debug,
-            log_dir=self.conf.log_dir,
-        )
-        self.snow = init_snow(
-            worker_id=self.conf.snow_worker_id,
-            datacenter_id=self.conf.snow_datacenter_id,
-        )
-        self.redis = init_redis(
-            host=self.conf.redis_host,
-            port=self.conf.redis_port,
-            db=self.conf.redis_db,
-            password=self.conf.redis_password,
-        )
-        # self.db_session = init_db(
-        #     db_url=self.conf.db_url,
-        #     db_echo=self.conf.debug,
-        # )
-        self.db_async_session = init_db_async(
-            db_url=self.conf.db_async_url,
-            db_echo=self.conf.debug,
-        )
+        cls._get_conf()
+        cls._get_logger()
+        cls._get_snow()
+        cls._get_redis()
+        # cls._get_db_session()
+        cls._get_db_async_session()
 
 
 g = G()
-# 建议：
-# 为了避免G下的全局变量在未初始化时使用，
-# 请使用如下方式调用：g.conf.xxx
-# 而不是在模块预先定义全局变量再调用
-# <<< 建议

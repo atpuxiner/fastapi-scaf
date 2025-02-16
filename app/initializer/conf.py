@@ -7,16 +7,16 @@ from pydantic.v1 import BaseSettings
 
 from app import APP_DIR
 
-CONFIG_DIR = APP_DIR.parent.joinpath("config")
+_CONFIG_DIR = APP_DIR.parent.joinpath("config")
 
 load_dotenv(dotenv_path=os.environ.setdefault(
     key="envpath",
-    value=str(CONFIG_DIR.joinpath(".env")))
+    value=str(_CONFIG_DIR.joinpath(".env")))
 )
 # #
 appyaml = Path(
     os.environ.get("appyaml") or
-    CONFIG_DIR.joinpath(f"app_{os.environ.setdefault(key='appenv', value='dev')}.yaml")
+    _CONFIG_DIR.joinpath(f"app_{os.environ.setdefault(key='appenv', value='dev')}.yaml")
 )
 if not appyaml.is_file():
     raise RuntimeError(f"配置文件不存在：{appyaml}")

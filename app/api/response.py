@@ -2,7 +2,7 @@ from typing import Mapping, get_type_hints
 
 from starlette.background import BackgroundTask
 from starlette.responses import JSONResponse, StreamingResponse, ContentStream
-from toollib.utils import now2timestamp, map_json_type
+from toollib.utils import now2timestamp, map_jsontype
 
 from app.api.status import Status
 
@@ -119,8 +119,8 @@ def response_docs(
         if isinstance(value, str):
             _value = value.split("|")
             if len(_value) > 1:
-                return " | ".join([map_json_type(_v.strip(), is_keep_integer=True) for _v in _value])
-            return map_json_type(value, is_keep_integer=True)
+                return " | ".join([map_jsontype(_v.strip(), is_keep_integer=True) for _v in _value])
+            return map_jsontype(value, is_keep_integer=True)
         elif isinstance(value, dict):
             return {k: _format_value(v) for k, v in value.items()}
         elif isinstance(value, (list, tuple)):
