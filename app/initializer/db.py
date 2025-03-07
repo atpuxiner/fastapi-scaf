@@ -47,9 +47,7 @@ def init_db(
                 exc.IntegrityError,
                 exc.ProgrammingError,
         ) as e:
-            if "already exists" in str(e):
-                pass
-            else:
+            if "already exists" not in str(e):
                 raise
 
     global _is_tables_created
@@ -95,9 +93,7 @@ def init_db_async(
                     exc.IntegrityError,
                     exc.ProgrammingError,
             ) as e:
-                if "already exists" in str(e):
-                    pass
-                else:
+                if "already exists" not in str(e):
                     raise
 
     global _is_tables_created

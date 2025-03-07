@@ -52,8 +52,11 @@ async def get(
     summary="user列表",
     responses=response_docs(
         model=GetUserListBiz,
-        is_list=True,
-        is_total=True,
+        is_listwrap=True,
+        listwrap_key="items",
+        listwrap_key_extra={
+            "total": "int",
+        },
     ),
 )
 async def get_list(
@@ -67,7 +70,7 @@ async def get_list(
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="user列表失败", error=e)
-    return Response.success(data={"data": data, "total": total})
+    return Response.success(data={"items": data, "total": total})
 
 
 @user_router.post(

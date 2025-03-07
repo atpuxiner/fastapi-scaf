@@ -39,13 +39,13 @@ def register_routers(
         for f in _API_MOD_DIR.joinpath(subdir).glob("*.py"):
             if not f.name.startswith("__"):
                 mod_str = f.stem
-                _mod_obj = f"{_API_MOD_PREFIX}.{subdir}.{mod_str}"
-                mod_obj = importlib.import_module(_mod_obj)
-                mod_obj_str = f"{mod_str}{obj_suffix}"
-                if hasattr(mod_obj, mod_obj_str):
-                    router = getattr(mod_obj, mod_obj_str)
+                mod_obj_str = f"{_API_MOD_PREFIX}.{subdir}.{mod_str}"
+                mod_obj = importlib.import_module(mod_obj_str)
+                router_obj_str = f"{mod_str}{obj_suffix}"
+                if hasattr(mod_obj, router_obj_str):
+                    router = getattr(mod_obj, router_obj_str)
                     if hasattr(mod_obj, "_active") and not getattr(mod_obj, "_active"):
-                        sys.modules.pop(_mod_obj)
+                        sys.modules.pop(mod_obj_str)
                         continue
                     app.include_router(
                         router=router,

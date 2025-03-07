@@ -78,10 +78,11 @@ class Response:
 
 def response_docs(
         model=None,  # 模型(BaseModel): 自动从模型中解析字段与类型
-        data: dict = None,  # 数据(dict): 直接给定字段与类型
-        is_list: bool = False,
-        is_total: bool = False,
-        appends: dict = None,
+        data: dict | str = None,  # 数据(dict/str): 直接给定字段与类型/类型
+        is_listwrap: bool = False,
+        listwrap_key: str = None,
+        listwrap_key_extra: dict = None,
+        docs_extra: dict = None,
 ):
     """响应文档"""
 
@@ -106,14 +107,16 @@ def response_docs(
     if model:
         full_data = _data_from_model(model)
     if data:
-        full_data.update(data)
-    if is_list:
-        full_data = full_data if isinstance(full_data, list) else [full_data]
-    if is_total:
-        full_data = {
-            "data": full_data,
-            "total": "int"
-        }
+        if isinstance(data, dict):
+            full_data.update(data)
+        else:
+            full_data = data
+    if is_listwrap:
+        full_data = [full_data] if not isinstance(full_data, list) else full_data
+        if listwrap_key:
+            full_data = {listwrap_key: full_data}
+            if listwrap_key_extra:
+                full_data.update(listwrap_key_extra)
 
     def _format_value(value):
         if isinstance(value, str):
@@ -128,7 +131,7 @@ def response_docs(
         else:
             return str(value)
 
-    format_data = {k: _format_value(v) for k, v in full_data.items()}
+    format_data = _format_value(full_data)
 
     docs = {
         200: {
@@ -159,6 +162,6 @@ def response_docs(
             }
         },
     }
-    if appends:
-        docs.update(appends)
+    if docs_extra:
+        docs.update(docs_extra)
     return docs
