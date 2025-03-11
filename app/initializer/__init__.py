@@ -4,24 +4,24 @@
 from loguru._logger import Logger  # noqa
 from sqlalchemy.orm import sessionmaker, scoped_session
 from toollib.guid import SnowFlake
-from toollib.redis_cli import RedisCli
+from toollib.rediser import RedisCli
 from toollib.utils import Singleton
 
-from app.initializer.conf import init_conf
-from app.initializer.db import init_db_async, init_db
-from app.initializer.logger import init_logger
-from app.initializer.redis import init_redis
-from app.initializer.snow import init_snow
+from app.initializer.conf import init_config
+from app.initializer.db import init_db_session, init_db_async_session
+from app.initializer.log import init_logger
+from app.initializer.rediser import init_redis_cli
+from app.initializer.snower import init_snow_cli
 
 
 class G(metaclass=Singleton):
     """
     全局变量
     """
-    conf = None
+    config = None
     logger: Logger = None
-    snow: SnowFlake = None
-    redis: RedisCli = None
+    redis_cli: RedisCli = None
+    snow_cli: SnowFlake = None
     db_session: scoped_session = None
     db_async_session: sessionmaker = None
 
@@ -39,55 +39,56 @@ class G(metaclass=Singleton):
         return value
 
     @classmethod
-    def _get_conf(cls):
-        if not cls.conf:
-            cls.conf = init_conf()
-        return cls.conf
+    def _get_config(cls):
+        if not cls.config:
+            cls.config = init_config()
+        return cls.config
 
     @classmethod
     def _get_logger(cls):
         if not cls.logger:
             cls.logger = init_logger(
-                debug=cls.conf.debug,
-                log_dir=cls.conf.log_dir,
+                debug=cls.config.debug,
+                log_dir=cls.config.log_dir,
             )
         return cls.logger
 
     @classmethod
-    def _get_snow(cls):
-        if not cls.snow:
-            cls.snow = init_snow(
-                worker_id=cls.conf.snow_worker_id,
-                datacenter_id=cls.conf.snow_datacenter_id,
+    def _get_redis_cli(cls):
+        if not cls.redis_cli:
+            cls.redis_cli = init_redis_cli(
+                host=cls.config.redis_host,
+                port=cls.config.redis_port,
+                db=cls.config.redis_db,
+                password=cls.config.redis_password,
+                max_connections=cls.config.redis_max_connections,
             )
-        return cls.snow
+        return cls.redis_cli
 
     @classmethod
-    def _get_redis(cls):
-        if not cls.redis:
-            cls.redis = init_redis(
-                host=cls.conf.redis_host,
-                port=cls.conf.redis_port,
-                db=cls.conf.redis_db,
-                password=cls.conf.redis_password,
+    def _get_snow_cli(cls):
+        if not cls.snow_cli:
+            cls.snow_cli = init_snow_cli(
+                redis_cli=cls.redis_cli,
+                datacenter_id=cls.config.snow_datacenter_id,
             )
-        return cls.redis
+        return cls.snow_cli
 
     @classmethod
     def _get_db_session(cls):
         if not cls.db_session:
-            cls.db_session = init_db(
-                db_url=cls.conf.db_url,
-                db_echo=cls.conf.debug,
+            cls.db_session = init_db_session(
+                db_url=cls.config.db_url,
+                db_echo=cls.config.debug,
             )
         return cls.db_session
 
     @classmethod
     def _get_db_async_session(cls):
         if not cls.db_async_session:
-            cls.db_async_session = init_db_async(
-                db_url=cls.conf.db_async_url,
-                db_echo=cls.conf.debug,
+            cls.db_async_session = init_db_async_session(
+                db_url=cls.config.db_async_url,
+                db_echo=cls.config.debug,
             )
         return cls.db_async_session
 
@@ -96,10 +97,10 @@ class G(metaclass=Singleton):
         """
         初始化
         """
-        cls._get_conf()
+        cls._get_config()
         cls._get_logger()
-        cls._get_snow()
-        cls._get_redis()
+        cls._get_redis_cli()
+        cls._get_snow_cli()
         # cls._get_db_session()
         cls._get_db_async_session()
 

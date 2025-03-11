@@ -103,20 +103,20 @@ def response_docs(
             data_[field_name] = t
         return data_
 
-    full_data = {}
+    final_data = {}
     if model:
-        full_data = _data_from_model(model)
+        final_data = _data_from_model(model)
     if data:
         if isinstance(data, dict):
-            full_data.update(data)
+            final_data.update(data)
         else:
-            full_data = data
+            final_data = data
     if is_listwrap:
-        full_data = [full_data] if not isinstance(full_data, list) else full_data
+        final_data = [final_data] if not isinstance(final_data, list) else final_data
         if listwrap_key:
-            full_data = {listwrap_key: full_data}
+            final_data = {listwrap_key: final_data}
             if listwrap_key_extra:
-                full_data.update(listwrap_key_extra)
+                final_data.update(listwrap_key_extra)
 
     def _format_value(value):
         if isinstance(value, str):
@@ -131,7 +131,7 @@ def response_docs(
         else:
             return str(value)
 
-    format_data = _format_value(full_data)
+    format_data = _format_value(final_data)
 
     docs = {
         200: {

@@ -13,7 +13,7 @@ _DATATYPE_MOD_PREFIX = "app.datatype"
 _is_tables_created = False
 
 
-def init_db(
+def init_db_session(
         db_url: str,
         db_echo: bool,
         db_pool_size: int = 10,
@@ -58,7 +58,7 @@ def init_db(
     return scoped_session(db_session)
 
 
-def init_db_async(
+def init_db_async_session(
         db_url: str,
         db_echo: bool,
         db_pool_size: int = 10,
@@ -80,7 +80,7 @@ def init_db_async(
         echo_pool=db_echo,
         **kwargs,
     )
-    async_session = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)  # noqa
+    db_async_session = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)  # noqa
 
     async def create_tables():
         from app.datatype import DeclBase
@@ -108,7 +108,7 @@ def init_db_async(
         if not loop.is_running():
             loop.run_until_complete(task)
         _is_tables_created = True
-    return async_session
+    return db_async_session
 
 
 def _import_tables():

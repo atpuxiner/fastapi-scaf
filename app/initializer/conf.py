@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
-from pydantic.v1 import BaseSettings
+from toollib.utils import get_cls_attrs, parse_variable
 
 from app import APP_DIR
 
@@ -22,54 +22,55 @@ if not appyaml.is_file():
     raise RuntimeError(f"配置文件不存在：{appyaml}")
 
 
-class Conf(BaseSettings):
+class EnvConfig:
+    """env配置"""
+    snow_datacenter_id: int = None
+
+    def setattr_from_env(self):
+        cls_attrs = get_cls_attrs(EnvConfig)
+        for k, item in cls_attrs.items():
+            v_type, v = item
+            if callable(v_type):
+                v = parse_variable(k=k, v_type=v_type, v_from=os.environ, default=v)
+            setattr(self, k, v)
+
+
+class Config(EnvConfig):
     """配置"""
     yamlname: str = appyaml.name
-    yamlconf: dict = None
-
-    # +++++++++ env中配置 +++++++++
-
-    # +++++++++ 初始中配置 +++++++++
-    appname: str = None
-    appversion: str = None
-    debug: bool = None
-    log_dir: str = None
-    is_disable_docs: bool = None
+    #
+    appname: str = "DbyApp"
+    appversion: str = "1.0.0"
+    debug: bool = True
+    log_dir: str = "./log"
+    is_disable_docs: bool = True
     # #
-    snow_worker_id: int = None
-    snow_datacenter_id: int = None
     redis_host: str = None
     redis_port: int = None
     redis_db: int = None
     redis_password: str = None
+    redis_max_connections: int = None
     db_url: str = None
     db_async_url: str = None
 
-    def setup(self, func_name: str = "conf_from_yaml"):
-        _ = getattr(self, func_name)
-        _()
-        # 特殊配置：比如设置默认值、类型转换或其他操作
-        self.appname = _("appname", default="DbyApp")
-        self.appversion = _("appversion", default="1.0.0")
-        self.debug = _("debug", default=False)
-        self.log_dir = _("log_dir", default="./log")
-        self.is_disable_docs = _("is_disable_docs", default=True)
-        # <<< 特殊配置
-        self.yamlconf = dict()
+    def setup(self):
+        self.setattr_from_env()
+        self.setattr_from_yamlconf()
         return self
 
-    def conf_from_yaml(self, name: str = None, default=None):
-        if not self.yamlconf:
-            self.yamlconf = self.load_yaml()
-            for k, v in self.yamlconf.items():  # auto
-                setattr(self, k, v)
-        return self.yamlconf.get(name, default)
+    def setattr_from_yamlconf(self):
+        cls_attrs = get_cls_attrs(Config)
+        for k, item in cls_attrs.items():
+            v_type, v = item
+            if callable(v_type):
+                v = parse_variable(k=k, v_type=v_type, v_from=self.load_yaml(), default=v)
+            setattr(self, k, v)
 
     @staticmethod
-    def load_yaml():
+    def load_yaml() -> dict:
         with open(appyaml, mode="r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
 
-def init_conf() -> Conf:
-    return Conf().setup()
+def init_config() -> Config:
+    return Config().setup()

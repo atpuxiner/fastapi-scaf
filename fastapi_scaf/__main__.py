@@ -144,17 +144,17 @@ class CMD:
     @staticmethod
     def _db_requirements_map(name: str):
         return {
-            "default": "aiosqlite~=0.20.0",
+            "default": "aiosqlite==0.21.0",
             "sqlite": [
-                "aiosqlite~=0.20.0",
+                "aiosqlite==0.21.0",
             ],
             "mysql": [
-                "PyMySQL~=1.1.1",
-                "aiomysql~=0.2.0",
+                "PyMySQL==1.1.1",
+                "aiomysql==0.2.0",
             ],
             "postgresql": [
-                "psycopg2-binary~=2.9.10",
-                "asyncpg~=0.30.0",
+                "psycopg2-binary==2.9.10",
+                "asyncpg==0.30.0",
             ],
         }.get(name)
 

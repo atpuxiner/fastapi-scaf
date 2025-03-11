@@ -8,7 +8,7 @@
     - new project
     - add api
     - about project:
-        - auto init project (conf, db, logger...)
+        - auto init project (conf, db, log...)
         - auto register router
         - auto register middleware
         - ...
@@ -32,7 +32,7 @@
       │   ├── initializer             ├── (初始化)
       │   │   ├── conf                │   ├── (配置)
       │   │   ├── db                  │   ├── (数据库)
-      │   │   ├── logger              │   ├── (日志)
+      │   │   ├── log                 │   ├── (日志)
       │   │   └── ...                 │   └── (...)
       │   ├── middleware              ├── (中间件)
       │   ├── router                  ├── (路由)
@@ -69,7 +69,7 @@ This package can be installed using pip (Python>=3.11):
 - 2）modify the configuration, such as for the database
 - 3）`pip install -r requirements.txt`
 - 4）`python runserver.py`
-    - more params see:
+    - more parameters see:
       - about uvicorn: [click here](https://www.uvicorn.org/)
       - about gunicorn: [click here](https://docs.gunicorn.org/en/stable/)
 

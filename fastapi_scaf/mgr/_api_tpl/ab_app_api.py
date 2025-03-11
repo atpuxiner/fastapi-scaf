@@ -11,7 +11,7 @@ from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
 tpl_router = APIRouter()
-_active = True  # 激活(若省略则默认True)
+_active = True  # 激活状态
 
 
 @tpl_router.get(

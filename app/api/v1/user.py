@@ -17,7 +17,7 @@ from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
 user_router = APIRouter()
-_active = True  # 激活(若省略则默认True)
+_active = True  # 激活状态
 
 
 # 注意：`user`仅为模块示例，请根据自身需求修改
@@ -171,7 +171,7 @@ async def token(
     try:
         data = await user_biz.token()
         if not data:
-            return Response.failure(msg="用户不存在", status=Status.UNAUTHORIZED_ERROR)
+            return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
         return Response.failure(msg="userToken失败", error=e)
