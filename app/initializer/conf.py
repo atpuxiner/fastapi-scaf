@@ -55,10 +55,10 @@ class Config(EnvConfig):
 
     def setup(self):
         self.setattr_from_env()
-        self.setattr_from_yamlconf()
+        self.setattr_from_yaml()
         return self
 
-    def setattr_from_yamlconf(self):
+    def setattr_from_yaml(self):
         cls_attrs = get_cls_attrs(Config)
         for k, item in cls_attrs.items():
             v_type, v = item
