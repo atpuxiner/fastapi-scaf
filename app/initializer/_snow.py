@@ -46,5 +46,5 @@ def _snow_incr(redis_cli, cache_key: str, cache_expire: int):
                 """
             incr = redis_cli.eval(lua_script, 1, cache_key, cache_expire)
     except Exception as e:  # noqa
-        logger.warning(f"snower初始化id将采用本地方式，由于（{e}）")
+        logger.warning(f"snow初始化id将采用本地方式，由于（{e}）")
     return incr

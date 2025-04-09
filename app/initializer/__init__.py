@@ -7,11 +7,11 @@ from toollib.guid import SnowFlake
 from toollib.rediser import RedisCli
 from toollib.utils import Singleton
 
-from app.initializer.conf import init_config
-from app.initializer.db import init_db_session, init_db_async_session
-from app.initializer.log import init_logger
-from app.initializer.rediser import init_redis_cli
-from app.initializer.snower import init_snow_cli
+from app.initializer._conf import init_config
+from app.initializer._db import init_db_session, init_db_async_session
+from app.initializer._log import init_logger
+from app.initializer._redis import init_redis_cli
+from app.initializer._snow import init_snow_cli
 
 
 class G(metaclass=Singleton):
