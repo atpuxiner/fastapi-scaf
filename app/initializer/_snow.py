@@ -32,19 +32,20 @@ def init_snow_cli(
 def _snow_incr(redis_cli, cache_key: str, cache_expire: int):
     incr = None
     try:
-        resp = redis_cli.ping()
-        if resp:
-            lua_script = """
-                if redis.call('exists', KEYS[1]) == 1 then
-                    redis.call('expire', KEYS[1], ARGV[1])
-                    return redis.call('incr', KEYS[1])
-                else
-                    redis.call('set', KEYS[1], 0)
-                    redis.call('expire', KEYS[1], ARGV[1])
-                    return 0
-                end
-                """
-            incr = redis_cli.eval(lua_script, 1, cache_key, cache_expire)
-    except Exception as e:  # noqa
+        with redis_cli.connection() as r:
+            resp = r.ping()
+            if resp:
+                lua_script = """
+                    if redis.call('exists', KEYS[1]) == 1 then
+                        redis.call('expire', KEYS[1], ARGV[1])
+                        return redis.call('incr', KEYS[1])
+                    else
+                        redis.call('set', KEYS[1], 0)
+                        redis.call('expire', KEYS[1], ARGV[1])
+                        return 0
+                    end
+                    """
+                incr = redis_cli.eval(lua_script, 1, cache_key, cache_expire)
+    except Exception as e:
         logger.warning(f"snow初始化id将采用本地方式，由于（{e}）")
     return incr
