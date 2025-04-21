@@ -13,10 +13,10 @@ _active = True  # 激活状态
 
 @tpl_router.get(
     path="/tpl/{tpl_id}",
-    summary="tpl详情",
+    summary="tplDetail",
     responses=response_docs(),
 )
-async def get(
+async def detail(
         tpl_id: str,
         current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
@@ -26,5 +26,5 @@ async def get(
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="tpl详情失败", error=e)
+        return Response.failure(msg="tplDetail失败", error=e)
     return Response.success(data=data)

@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
 
 
-class GetTplBiz(BaseModel):
+class tplDetailBiz(BaseModel):
     id: str = Field(...)
 
-    async def get(self):
+    async def detail(self):
         # TODO: 业务逻辑
         pass

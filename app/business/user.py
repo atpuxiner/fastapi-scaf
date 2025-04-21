@@ -1,20 +1,20 @@
 from app.datatype.user import (
     User,
-    GetUserMdl,
-    GetUserListMdl,
-    CreateUserMdl,
-    UpdateUserMdl,
-    DeleteUserMdl,
-    LoginUserMdl,
-    TokenUserMdl,
+    UserDetailMdl,
+    UserListMdl,
+    UserCreateMdl,
+    UserUpdateMdl,
+    UserDeleteMdl,
+    UserLoginMdl,
+    UserTokenMdl,
 )
 from app.initializer import g
 from app.utils import auth, db_async
 
 
-class GetUserBiz(GetUserMdl):
+class UserDetailBiz(UserDetailMdl):
 
-    async def get(self):
+    async def detail(self):
         async with g.db_async_session() as session:
             data = await db_async.query_one(
                 session=session,
@@ -25,9 +25,9 @@ class GetUserBiz(GetUserMdl):
             return data
 
 
-class GetUserListBiz(GetUserListMdl):
+class UserListBiz(UserListMdl):
 
-    async def get_list(self):
+    async def lst(self):
         async with g.db_async_session() as session:
             data = await db_async.query_all(
                 session=session,
@@ -40,7 +40,7 @@ class GetUserListBiz(GetUserListMdl):
             return data, total
 
 
-class CreateUserBiz(CreateUserMdl):
+class UserCreateBiz(UserCreateMdl):
 
     async def create(self):
         async with g.db_async_session() as session:
@@ -59,7 +59,7 @@ class CreateUserBiz(CreateUserMdl):
             )
 
 
-class UpdateUserBiz(UpdateUserMdl):
+class UserUpdateBiz(UserUpdateMdl):
 
     async def update(self, user_id: str):
         async with g.db_async_session() as session:
@@ -71,7 +71,7 @@ class UpdateUserBiz(UpdateUserMdl):
             )
 
 
-class DeleteUserBiz(DeleteUserMdl):
+class UserDeleteBiz(UserDeleteMdl):
 
     @staticmethod
     async def delete(user_id: str):
@@ -83,7 +83,7 @@ class DeleteUserBiz(DeleteUserMdl):
             )
 
 
-class LoginUserBiz(LoginUserMdl):
+class UserLoginBiz(UserLoginMdl):
 
     async def login(self):
         async with g.db_async_session() as session:
@@ -116,7 +116,7 @@ class LoginUserBiz(LoginUserMdl):
             return token
 
 
-class TokenUserBiz(TokenUserMdl):
+class UserTokenBiz(UserTokenMdl):
 
     async def token(self):
         async with g.db_async_session() as session:

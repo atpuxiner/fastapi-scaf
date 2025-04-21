@@ -1,10 +1,10 @@
 from app.datatype.tpl import (
-    GetTplMdl,
+    tplDetailMdl,
 )
 
 
-class GetTplBiz(GetTplMdl):
+class tplDetailBiz(tplDetailMdl):
 
-    async def get(self):
+    async def detail(self):
         # TODO: 业务逻辑
         pass

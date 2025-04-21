@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends
 from app.api.response import Response, response_docs
 from app.api.status import Status
 from app.business.user import (
-    GetUserBiz,
-    GetUserListBiz,
-    CreateUserBiz,
-    UpdateUserBiz,
-    DeleteUserBiz,
-    LoginUserBiz,
-    TokenUserBiz,
+    UserDetailBiz,
+    UserListBiz,
+    UserCreateBiz,
+    UserUpdateBiz,
+    UserDeleteBiz,
+    UserLoginBiz,
+    UserTokenBiz,
 )
 from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
@@ -27,31 +27,31 @@ _active = True  # 激活状态
 
 @user_router.get(
     path="/user/{user_id}",
-    summary="user详情",
+    summary="userDetail",
     responses=response_docs(
-        model=GetUserBiz,
+        model=UserDetailBiz,
     ),
 )
-async def get(
+async def detail(
         user_id: str,
         current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
     try:
-        user_biz = GetUserBiz(id=user_id)
-        data = await user_biz.get()
+        user_biz = UserDetailBiz(id=user_id)
+        data = await user_biz.detail()
         if not data:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="user详情失败", error=e)
+        return Response.failure(msg="userDetail失败", error=e)
     return Response.success(data=data)
 
 
 @user_router.get(
     path="/user",
-    summary="user列表",
+    summary="userList",
     responses=response_docs(
-        model=GetUserListBiz,
+        model=UserListBiz,
         is_listwrap=True,
         listwrap_key="items",
         listwrap_key_extra={
@@ -59,29 +59,29 @@ async def get(
         },
     ),
 )
-async def get_list(
+async def lst(
         page: int = 1,
         size: int = 10,
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
-        user_biz = GetUserListBiz(page=page, size=size)
-        data, total = await user_biz.get_list()
+        user_biz = UserListBiz(page=page, size=size)
+        data, total = await user_biz.lst()
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="user列表失败", error=e)
+        return Response.failure(msg="userList失败", error=e)
     return Response.success(data={"items": data, "total": total})
 
 
 @user_router.post(
     path="/user",
-    summary="user创建",
+    summary="userCreate",
     responses=response_docs(data={
         "id": "str",
     }),
 )
 async def create(
-        user_biz: CreateUserBiz,
+        user_biz: UserCreateBiz,
 ):
     try:
         user_id = await user_biz.create()
@@ -89,20 +89,20 @@ async def create(
             return Response.failure(msg="用户已存在", status=Status.RECORD_EXISTS_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="user创建失败", error=e)
+        return Response.failure(msg="userCreate失败", error=e)
     return Response.success(data={"id": user_id})
 
 
 @user_router.put(
     path="/user/{user_id}",
-    summary="user更新",
+    summary="userUpdate",
     responses=response_docs(data={
         "id": "str",
     }),
 )
 async def update(
         user_id: str,
-        user_biz: UpdateUserBiz,
+        user_biz: UserUpdateBiz,
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
@@ -111,13 +111,13 @@ async def update(
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="user更新失败", error=e)
+        return Response.failure(msg="userUpdate失败", error=e)
     return Response.success(data={"id": user_id})
 
 
 @user_router.delete(
     path="/user/{user_id}",
-    summary="user删除",
+    summary="userDelete",
     responses=response_docs(data={
         "id": "str",
     }),
@@ -127,13 +127,13 @@ async def delete(
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
-        user_biz = DeleteUserBiz()
+        user_biz = UserDeleteBiz()
         deleted_ids = await user_biz.delete(user_id)
         if not deleted_ids:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="user删除失败", error=e)
+        return Response.failure(msg="userDelete失败", error=e)
     return Response.success(data={"id": user_id})
 
 
@@ -145,7 +145,7 @@ async def delete(
     }),
 )
 async def login(
-        user_biz: LoginUserBiz,
+        user_biz: UserLoginBiz,
 ):
     try:
         data = await user_biz.login()
@@ -165,7 +165,7 @@ async def login(
     }),
 )
 async def token(
-        user_biz: TokenUserBiz,
+        user_biz: UserTokenBiz,
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:

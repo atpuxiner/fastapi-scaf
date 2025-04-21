@@ -23,7 +23,7 @@ class User(DeclBase):
     updated_at = Column(BigInteger, default=now2timestamp, onupdate=now2timestamp, comment="更新时间")
 
 
-class GetUserMdl(BaseModel):
+class UserDetailMdl(BaseModel):
     id: str = Field(...)
     # #
     phone: str = None
@@ -41,7 +41,7 @@ class GetUserMdl(BaseModel):
         )
 
 
-class GetUserListMdl(BaseModel):
+class UserListMdl(BaseModel):
     page: int = Field(1, ge=1)
     size: int = Field(10, ge=1)
     # #
@@ -64,7 +64,7 @@ class GetUserListMdl(BaseModel):
         )
 
 
-class CreateUserMdl(BaseModel):
+class UserCreateMdl(BaseModel):
     phone: str = Field(..., pattern=r"^1[3-9]\d{9}$")
     password: str = Field(...)
     name: str | None = Field(None)
@@ -86,7 +86,7 @@ class CreateUserMdl(BaseModel):
         return v
 
 
-class UpdateUserMdl(BaseModel):
+class UserUpdateMdl(BaseModel):
     name: str | None = Field(None)
     age: int | None = Field(None, ge=0, le=200)
     gender: Literal[1, 2] | None = Field(None)
@@ -98,15 +98,15 @@ class UpdateUserMdl(BaseModel):
         return v
 
 
-class DeleteUserMdl(BaseModel):
+class UserDeleteMdl(BaseModel):
     pass
 
 
-class LoginUserMdl(BaseModel):
+class UserLoginMdl(BaseModel):
     phone: str = Field(...)
     password: str = Field(...)
 
 
-class TokenUserMdl(BaseModel):
+class UserTokenMdl(BaseModel):
     id: str = Field(...)
     exp_minutes: int = Field(24 * 60 * 30, ge=1)

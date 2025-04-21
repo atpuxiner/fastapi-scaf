@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.response import Response, response_docs
 from app.business.tpl import (
-    GetTplBiz,
+    tplDetailBiz,
 )
 from app.api.status import Status
 from app.initializer import g
@@ -16,21 +16,21 @@ _active = True  # 激活状态
 
 @tpl_router.get(
     path="/tpl/{tpl_id}",
-    summary="tpl详情",
+    summary="tplDetail",
     responses=response_docs(
-        model=GetTplBiz,
+        model=tplDetailBiz,
     ),
 )
-async def get(
+async def detail(
         tpl_id: str,
         current_user: JWTUser = Depends(get_current_user),  # 认证
 ):
     try:
-        tpl_biz = GetTplBiz(id=tpl_id)
-        data = await tpl_biz.get()
+        tpl_biz = tplDetailBiz(id=tpl_id)
+        data = await tpl_biz.detail()
         if not data:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)
     except Exception as e:
         g.logger.error(traceback.format_exc())
-        return Response.failure(msg="tpl详情失败", error=e)
+        return Response.failure(msg="tplDetail失败", error=e)
     return Response.success(data=data)
