@@ -54,7 +54,14 @@ def main():
         type=str,
         default="v1",
         metavar="",
-        help="`add`时可指定api版本(默认v1)")
+        help="`add`时可指定版本(默认v1)")
+    parser.add_argument(
+        "-s",
+        "--subdir",
+        type=str,
+        default="",
+        metavar="",
+        help="`add`时可指定子目录(默认空)")
     parser.add_argument(
         "-t",
         "--target",
@@ -96,6 +103,12 @@ class CMD:
             if not re.search(pattern, args.vn):
                 sys.stderr.write(f"{prog}: '{args.vn}' only support regex: {pattern}\n")
                 sys.exit(1)
+            args.subdir = args.subdir.replace(" ", "")
+            if args.subdir:
+                pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
+                if not re.search(pattern, args.subdir):
+                    sys.stderr.write(f"{prog}: '{args.subdir}' only support regex: {pattern}\n")
+                    sys.exit(1)
         self.args = args
 
     def new(self):
@@ -181,6 +194,7 @@ class CMD:
 
     def add(self):
         vn = self.args.vn
+        subdir = self.args.subdir
         target = self.args.target
 
         work_dir = Path.cwd()
@@ -227,7 +241,7 @@ class CMD:
                 "111": [0, 0, 0],
             }
             e_flag = [
-                1 if (Path(work_dir, mod, vn if mod.endswith("api") else "", f"{name}.py")).is_file() else 0
+                1 if (Path(work_dir, mod, vn if mod.endswith("api") else "", subdir, f"{name}.py")).is_file() else 0
                 for mod in tpl_mods
             ]
             p_flag = flags["".join(map(str, e_flag))]
@@ -252,6 +266,15 @@ class CMD:
                                 sys.exit(1)
                         else:
                             sys.exit(1)
+                if subdir:
+                    curr_mod_dir = curr_mod_dir.joinpath(subdir)
+                    curr_mod_dir.mkdir(parents=True, exist_ok=True)
+                    if mod.endswith("api"):
+                        with open(curr_mod_dir.joinpath("__init__.py"), "w+", encoding="utf-8") as f:
+                            f.write("""\"\"\"\n{subdir}\n\"\"\"\n\n_prefix = "/{subdir}"\n""".format(
+                                subdir=subdir,
+                            ))
+
                 # file
                 curr_mod_file = curr_mod_dir.joinpath(name + ".py")
                 curr_mod_file_rel = curr_mod_file.relative_to(work_dir)
@@ -262,9 +285,18 @@ class CMD:
                         sys.stdout.write(f"[{name}] Writing {curr_mod_file_rel}\n")
                         prefix = "only_" if p_flag[i] else f"{target}_"
                         k = prefix + mod.replace("/", "_") + ".py"
-                        v = api_tpl_dict.get(k, "").replace(
-                            "tpl", name).replace(
-                            "Tpl", "".join([i[0].upper()+i[1:] if i else "_" for i in name.split("_")]))
+                        if subdir:
+                            v = api_tpl_dict.get(k, "").replace(
+                                "from app.business.tpl import (", f"from app.business.{subdir}.tpl import ("
+                            ).replace(
+                                "from app.datatype.tpl import (", f"from app.datatype.{subdir}.tpl import ("
+                            ).replace(
+                                "tpl", name).replace(
+                                "Tpl", "".join([i[0].upper() + i[1:] if i else "_" for i in name.split("_")]))
+                        else:
+                            v = api_tpl_dict.get(k, "").replace(
+                                "tpl", name).replace(
+                                "Tpl", "".join([i[0].upper() + i[1:] if i else "_" for i in name.split("_")]))
                         f.write(v)
 
 

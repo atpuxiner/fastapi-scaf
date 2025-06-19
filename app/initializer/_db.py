@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from app import APP_DIR
 
 _DATATYPE_MOD_DIR = APP_DIR.joinpath("datatype")
-_DATATYPE_MOD_PREFIX = "app.datatype"
+_DATATYPE_MOD_BASE = "app.datatype"
 
 _is_tables_created = False
 
@@ -115,4 +115,4 @@ def _import_tables():
     """导入表"""
     for f in _DATATYPE_MOD_DIR.glob("*.py"):
         if not f.name.startswith("__"):
-            _ = importlib.import_module(f"{_DATATYPE_MOD_PREFIX}.{f.stem}")
+            _ = importlib.import_module(f"{_DATATYPE_MOD_BASE}.{f.stem}")

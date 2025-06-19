@@ -17,7 +17,8 @@ from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
 user_router = APIRouter()
-_active = True  # 激活状态
+_active = True  # 激活状态（默认激活）
+_tag = "user"  # 标签（默认模块名或子目录名）
 
 
 # 注意：`user`仅为模块示例，请根据自身需求修改

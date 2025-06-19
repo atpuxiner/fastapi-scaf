@@ -11,7 +11,6 @@ from app.initializer import g
 from app.middleware.auth import JWTUser, get_current_user
 
 tpl_router = APIRouter()
-_active = True  # 激活状态
 
 
 @tpl_router.get(
@@ -23,7 +22,7 @@ _active = True  # 激活状态
 )
 async def detail(
         tpl_id: str,
-        current_user: JWTUser = Depends(get_current_user),  # 认证
+        current_user: JWTUser = Depends(get_current_user),
 ):
     try:
         tpl_biz = tplDetailBiz(id=tpl_id)

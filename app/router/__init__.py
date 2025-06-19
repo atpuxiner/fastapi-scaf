@@ -3,52 +3,84 @@
 """
 import importlib
 import sys
+from pathlib import Path
 
 from fastapi import FastAPI
+from loguru import logger
 
 from app import APP_DIR
 
 _API_MOD_DIR = APP_DIR.joinpath("api")
-_API_MOD_PREFIX = "app.api"
+_API_MOD_BASE = "app.api"
 
 
 def register_routers(
         app: FastAPI,
-        subdirs: list = None,
+        mod_dir: Path = _API_MOD_DIR,
+        mod_base: str = _API_MOD_BASE,
+        prefix: str = "",
         obj_suffix: str = "_router",
-        default_prefix: str = "",
+        depth: int = 0,
+        max_depth: int = 2
 ):
     """
     注册路由
     要求：
         路由模块：非'__'开头的模块
-        路由对象：{模块名称}{后缀}
-    :param app: 应用
-    :param subdirs: 子目录
-    :param obj_suffix: 对象后缀
-    :param default_prefix: 默认前缀
-    :return:
+        路由对象：{模块名称}{路由对象后缀}
+    :param app: FastAPI应用
+    :param mod_dir: api模块目录
+    :param mod_base: api模块基础
+    :param prefix: url前缀
+    :param obj_suffix: 路由对象后缀
+    :param depth: 当前递归深度
+    :param max_depth: 最大递归深度
     """
-    subdirs = subdirs or [d.stem for d in _API_MOD_DIR.rglob('*') if d.is_dir() and d.stem != "__pycache__"]
-    for subdir in subdirs:
-        subdir_obj = importlib.import_module(f"{_API_MOD_PREFIX}.{subdir}")
-        if hasattr(subdir_obj, "_prefix"):
-            prefix = getattr(subdir_obj, "_prefix")
-        else:
-            prefix = default_prefix
-        for f in _API_MOD_DIR.joinpath(subdir).glob("*.py"):
-            if not f.name.startswith("__"):
-                mod_str = f.stem
-                mod_obj_str = f"{_API_MOD_PREFIX}.{subdir}.{mod_str}"
-                mod_obj = importlib.import_module(mod_obj_str)
-                router_obj_str = f"{mod_str}{obj_suffix}"
-                if hasattr(mod_obj, router_obj_str):
-                    router = getattr(mod_obj, router_obj_str)
-                    if hasattr(mod_obj, "_active") and not getattr(mod_obj, "_active"):
-                        sys.modules.pop(mod_obj_str)
-                        continue
+    if depth > max_depth:
+        return
+    for item in mod_dir.iterdir():
+        if item.name.startswith("__") or item.name == "__pycache__":
+            continue
+        if item.is_dir():
+            new_mod_dir = item
+            new_mod_base = f"{mod_base}.{item.name}"
+            new_prefix = prefix
+            try:
+                mod = importlib.import_module(new_mod_base)
+                _prefix = getattr(mod, "_prefix", None)
+                if _prefix:
+                    new_prefix = f"{new_prefix}/{_prefix}"
+            except ImportError:
+                logger.error(f"Failed to import module: {new_mod_base}")
+                continue
+            register_routers(
+                app=app,
+                mod_dir=new_mod_dir,
+                mod_base=new_mod_base,
+                prefix=new_prefix,
+                obj_suffix=obj_suffix,
+                depth=depth + 1,
+                max_depth=max_depth
+            )
+        elif item.is_file() and item.suffix == ".py" and depth > 0:
+            mod_name = item.stem
+            final_mod = f"{mod_base}.{mod_name}"
+            try:
+                mod = importlib.import_module(final_mod)
+                if not getattr(mod, "_active", True):
+                    logger.info(f"Skipping inactive module: {final_mod}")
+                    sys.modules.pop(final_mod)
+                    continue
+                router_name = f"{mod_name}{obj_suffix}"
+                if router := getattr(mod, router_name, None):
+                    tag = getattr(mod, "_tag", None)
+                    if not tag:
+                        tag = item.parent.stem if depth > 1 else mod_name
                     app.include_router(
                         router=router,
-                        prefix=prefix.rstrip("/"),
-                        tags=[mod_str],
+                        prefix=prefix.replace("//", "/").rstrip("/"),
+                        tags=[tag]
                     )
+            except ImportError:
+                logger.error(f"Failed to import module: {final_mod}")
+                continue
