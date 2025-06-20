@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.response import Response, response_docs
 from app.business.tpl import (
-    tplDetailBiz,
+    TplDetailBiz,
 )
 from app.api.status import Status
 from app.initializer import g
@@ -17,7 +17,7 @@ tpl_router = APIRouter()
     path="/tpl/{tpl_id}",
     summary="tplDetail",
     responses=response_docs(
-        model=tplDetailBiz,
+        model=TplDetailBiz,
     ),
 )
 async def detail(
@@ -25,7 +25,7 @@ async def detail(
         current_user: JWTUser = Depends(get_current_user),
 ):
     try:
-        tpl_biz = tplDetailBiz(id=tpl_id)
+        tpl_biz = TplDetailBiz(id=tpl_id)
         data = await tpl_biz.detail()
         if not data:
             return Response.failure(msg="未匹配到记录", status=Status.RECORD_NOT_EXIST_ERROR)

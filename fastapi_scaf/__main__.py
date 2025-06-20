@@ -40,7 +40,7 @@ def main():
     parser.add_argument(
         "name",
         type=str,
-        help="项目或api名称(多个api可英文逗号分隔)")
+        help="项目或api名称(多个api可逗号分隔)")
     parser.add_argument(
         "-d",
         "--db",
@@ -90,8 +90,9 @@ class CMD:
                 sys.stderr.write(f"{prog}: '{args.name}' only support regex: {pattern}\n")
                 sys.exit(1)
         else:
-            for t in args.name.strip(",").split(","):
-                pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
+            pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
+            args.name = args.name.replace("，", ",").strip(",")
+            for t in args.name.split(","):
                 if not re.search(pattern, t):
                     sys.stderr.write(f"{prog}: '{t}' only support regex: {pattern}\n")
                     sys.exit(1)
@@ -99,13 +100,11 @@ class CMD:
             if not args.vn:
                 sys.stderr.write(f"{prog}: vn cannot be empty\n")
                 sys.exit(1)
-            pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
             if not re.search(pattern, args.vn):
                 sys.stderr.write(f"{prog}: '{args.vn}' only support regex: {pattern}\n")
                 sys.exit(1)
             args.subdir = args.subdir.replace(" ", "")
             if args.subdir:
-                pattern = r"^[A-Za-z][A-Za-z0-9_]{0,64}$"
                 if not re.search(pattern, args.subdir):
                     sys.stderr.write(f"{prog}: '{args.subdir}' only support regex: {pattern}\n")
                     sys.exit(1)
@@ -219,7 +218,7 @@ class CMD:
             if not work_dir.joinpath(mod).is_dir():
                 sys.stderr.write(f"[error] not exists: {mod.replace('/', os.sep)}")
                 sys.exit(1)
-        for name in self.args.name.strip(",").split(","):
+        for name in self.args.name.split(","):
             sys.stdout.write(f"Adding api:\n")
             flags = {
                 # a
@@ -269,8 +268,9 @@ class CMD:
                 if subdir:
                     curr_mod_dir = curr_mod_dir.joinpath(subdir)
                     curr_mod_dir.mkdir(parents=True, exist_ok=True)
-                    if mod.endswith("api"):
-                        with open(curr_mod_dir.joinpath("__init__.py"), "w+", encoding="utf-8") as f:
+                    with open(curr_mod_dir.joinpath("__init__.py"), "w+", encoding="utf-8") as f:
+                        f.write("")
+                        if mod.endswith("api"):
                             f.write("""\"\"\"\n{subdir}\n\"\"\"\n\n_prefix = "/{subdir}"\n""".format(
                                 subdir=subdir,
                             ))

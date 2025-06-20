@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class tplDetailBiz(BaseModel):
+class TplDetailBiz(BaseModel):
     id: str = Field(...)
 
     async def detail(self):

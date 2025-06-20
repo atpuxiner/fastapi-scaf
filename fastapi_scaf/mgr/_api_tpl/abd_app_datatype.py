@@ -12,7 +12,7 @@ class Tpl(DeclBase):
     name = Column(String(50), nullable=False, comment="名称")
 
 
-class tplDetailMdl(BaseModel):
+class TplDetailMdl(BaseModel):
     id: str = Field(...)
     # #
     name: str = None

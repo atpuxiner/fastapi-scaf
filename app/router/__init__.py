@@ -51,7 +51,7 @@ def register_routers(
                 if _prefix:
                     new_prefix = f"{new_prefix}/{_prefix}"
             except ImportError:
-                logger.error(f"Failed to import module: {new_mod_base}")
+                logger.error(f"Register router failed to import module: {new_mod_base}")
                 continue
             register_routers(
                 app=app,
@@ -68,7 +68,7 @@ def register_routers(
             try:
                 mod = importlib.import_module(final_mod)
                 if not getattr(mod, "_active", True):
-                    logger.info(f"Skipping inactive module: {final_mod}")
+                    logger.info(f"Register router skipping inactive module: {final_mod}")
                     sys.modules.pop(final_mod)
                     continue
                 router_name = f"{mod_name}{obj_suffix}"
@@ -82,5 +82,5 @@ def register_routers(
                         tags=[tag]
                     )
             except ImportError:
-                logger.error(f"Failed to import module: {final_mod}")
+                logger.error(f"Register router failed to import module: {final_mod}")
                 continue

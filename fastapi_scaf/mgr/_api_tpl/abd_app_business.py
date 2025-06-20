@@ -1,9 +1,9 @@
 from app.datatype.tpl import (
-    tplDetailMdl,
+    TplDetailMdl,
 )
 
 
-class tplDetailBiz(tplDetailMdl):
+class TplDetailBiz(TplDetailMdl):
 
     async def detail(self):
         # TODO: 业务逻辑
